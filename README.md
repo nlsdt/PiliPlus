@@ -1,3 +1,14 @@
+
+<div align="center">
+<h1>
+        
+这个仓库用于在上游commit后不定时运行action，以获取开发版本的编译，**很可能有bug和不稳定！**
+</h1>
+
+action 下载下来包名为`com.nlsdt.dev.piliplus`
+</div>
+
+-----
 <div align="center">
     <img width="200" height="200" src="assets/images/logo/logo.png">
 </div>
