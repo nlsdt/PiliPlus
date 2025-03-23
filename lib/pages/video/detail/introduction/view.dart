@@ -473,6 +473,64 @@ class _VideoInfoState extends State<VideoInfo> with TickerProviderStateMixin {
                                                   ),
                                                 ),
                                               ),
+                                            Positioned(
+                                              top: 0,
+                                              right: -6,
+                                              child: Obx(() => videoIntroController
+                                                                  .staffRelations[
+                                                              'status'] ==
+                                                          true &&
+                                                      videoIntroController
+                                                                  .staffRelations[
+                                                              '${videoItem['staff'][index].mid}'] ==
+                                                          null
+                                                  ? Material(
+                                                      color: Colors.transparent,
+                                                      child: InkWell(
+                                                        customBorder:
+                                                            const CircleBorder(),
+                                                        onTap: () {
+                                                          Utils
+                                                              .actionRelationMod(
+                                                            context: context,
+                                                            mid: videoItem[
+                                                                        'staff']
+                                                                    [index]
+                                                                .mid,
+                                                            isFollow: false,
+                                                            callback: (val) {
+                                                              videoIntroController
+                                                                      .staffRelations[
+                                                                  '${videoItem['staff'][index].mid}'] = true;
+                                                            },
+                                                          );
+                                                        },
+                                                        child: Ink(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(2),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondaryContainer,
+                                                            shape:
+                                                                BoxShape.circle,
+                                                          ),
+                                                          child: Icon(
+                                                            MdiIcons.plus,
+                                                            size: 16,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .onSecondaryContainer,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : const SizedBox.shrink()),
+                                            ),
                                           ],
                                         ),
                                         const SizedBox(width: 8),

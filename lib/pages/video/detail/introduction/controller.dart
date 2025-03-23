@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:PiliPlus/http/init.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/http/member.dart';
 import 'package:PiliPlus/pages/dynamics/repost_dyn_panel.dart';
@@ -38,6 +39,7 @@ class VideoIntroController extends GetxController
 
   // 视频详情 上个页面传入
   Map videoItem = {};
+  late final RxMap staffRelations = {}.obs;
 
   // 请求状态
   RxBool isLoading = false.obs;
@@ -148,6 +150,23 @@ class VideoIntroController extends GetxController
       }
       videoDetail.value = result['data'];
       videoItem['staff'] = result['data'].staff;
+      if (result['data'].staff?.isNotEmpty == true) {
+        Request().get(
+          '/x/relation/relations',
+          queryParameters: {
+            'fids': (result['data'].staff as List<Staff>)
+                .map((item) => item.mid)
+                .join(',')
+          },
+        ).then((res) {
+          if (res.data['code'] == 0) {
+            staffRelations.value = {
+              'status': true,
+              ...res.data['data'],
+            };
+          }
+        });
+      }
       try {
         final videoDetailController =
             Get.find<VideoDetailController>(tag: heroTag);

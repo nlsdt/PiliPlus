@@ -187,6 +187,7 @@ dependencies:
   live_photo_maker: ^0.0.6
   fl_chart: ^0.69.2
   synchronized: ^3.3.0
+  document_file_save_plus: ^2.0.0
 
 dependency_overrides:
   screen_brightness: ^2.0.1

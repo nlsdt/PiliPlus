@@ -6,6 +6,7 @@ import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/segment_progress_bar.dart';
 import 'package:PiliPlus/http/init.dart';
 import 'package:PiliPlus/models/common/audio_normalization.dart';
+import 'package:PiliPlus/models/user/danmaku_rule.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:canvas_danmaku/canvas_danmaku.dart';
@@ -261,10 +262,7 @@ class PlPlayerController {
 
   /// 弹幕权重
   int danmakuWeight = 0;
-  int filterCount = 0;
-  List dmFilterString = [];
-  List<RegExp> dmRegExp = [];
-  Set dmUid = {};
+  late RuleFilter filters;
   // 关联弹幕控制器
   DanmakuController? danmakuController;
   bool showDanmaku = true;
@@ -291,6 +289,7 @@ class PlPlayerController {
   late double subtitleBgOpaticy = GStorage.subtitleBgOpaticy;
   late bool showVipDanmaku = GStorage.showVipDanmaku;
   late double subtitleStrokeWidth = GStorage.subtitleStrokeWidth;
+  late int subtitleFontWeight = GStorage.subtitleFontWeight;
 
   // 播放顺序相关
   PlayRepeat playRepeat = PlayRepeat.pause;
@@ -302,7 +301,7 @@ class PlPlayerController {
         letterSpacing: 0.1,
         wordSpacing: 0.1,
         color: Colors.white,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.values[subtitleFontWeight],
         backgroundColor: subtitleBgOpaticy == 0
             ? null
             : Colors.black.withOpacity(subtitleBgOpaticy),
@@ -406,22 +405,7 @@ class PlPlayerController {
     isOpenDanmu.value =
         setting.get(SettingBoxKey.enableShowDanmaku, defaultValue: true);
     danmakuWeight = setting.get(SettingBoxKey.danmakuWeight, defaultValue: 0);
-    List rules = GStorage.localCache
-        .get(LocalCacheKey.danmakuFilterRule, defaultValue: []);
-    filterCount = rules.length;
-    for (var item in rules) {
-      switch (item['type']) {
-        case 0:
-          dmFilterString.add(item['filter']);
-          break;
-        case 1:
-          dmRegExp.add(RegExp(item['filter'], caseSensitive: false));
-          break;
-        case 2:
-          dmUid.add(item['filter']);
-          break;
-      }
-    }
+    filters = GStorage.danmakuFilterRule;
     blockTypes = setting.get(SettingBoxKey.danmakuBlockType, defaultValue: []);
     showArea = setting.get(SettingBoxKey.danmakuShowArea, defaultValue: 0.5);
     // 不透明度
@@ -1528,16 +1512,20 @@ class PlPlayerController {
     setting.put(SettingBoxKey.danmakuOpacity, opacityVal);
     setting.put(SettingBoxKey.danmakuFontScale, fontSizeVal);
     setting.put(SettingBoxKey.danmakuFontScaleFS, fontSizeFSVal);
-    setting.put(SettingBoxKey.subtitleFontScale, subtitleFontScale);
-    setting.put(SettingBoxKey.subtitleFontScaleFS, subtitleFontScaleFS);
     setting.put(SettingBoxKey.danmakuDuration, danmakuDurationVal);
     setting.put(SettingBoxKey.strokeWidth, strokeWidth);
     setting.put(SettingBoxKey.fontWeight, fontWeight);
     setting.put(SettingBoxKey.danmakuLineHeight, danmakuLineHeight);
+  }
+
+  void putSubtitleSettings() {
+    setting.put(SettingBoxKey.subtitleFontScale, subtitleFontScale);
+    setting.put(SettingBoxKey.subtitleFontScaleFS, subtitleFontScaleFS);
     setting.put(SettingBoxKey.subtitlePaddingH, subtitlePaddingH);
     setting.put(SettingBoxKey.subtitlePaddingB, subtitlePaddingB);
     setting.put(SettingBoxKey.subtitleBgOpaticy, subtitleBgOpaticy);
     setting.put(SettingBoxKey.subtitleStrokeWidth, subtitleStrokeWidth);
+    setting.put(SettingBoxKey.subtitleFontWeight, subtitleFontWeight);
   }
 
   Future<void> dispose({String type = 'single'}) async {
@@ -1636,7 +1624,7 @@ class PlPlayerController {
     _isQueryingVideoShot = true;
     try {
       dynamic res = await Request().get(
-        'https://api.bilibili.com/x/player/videoshot',
+        '/x/player/videoshot',
         queryParameters: {
           // 'aid': IdUtils.bv2av(_bvid),
           'bvid': _bvid,

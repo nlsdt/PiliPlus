@@ -12,6 +12,8 @@ import 'package:PiliPlus/models/common/sponsor_block/skip_type.dart';
 import 'package:PiliPlus/models/common/tab_type.dart';
 import 'package:PiliPlus/models/common/theme_type.dart';
 import 'package:PiliPlus/models/common/up_panel_position.dart';
+import 'package:PiliPlus/models/user/danmaku_rule.dart';
+import 'package:PiliPlus/models/user/danmaku_rule_adapter.dart';
 import 'package:PiliPlus/models/video/play/CDN.dart';
 import 'package:PiliPlus/models/video/play/quality.dart';
 import 'package:PiliPlus/models/video/play/subtitle.dart';
@@ -316,7 +318,10 @@ class GStorage {
       setting.get(SettingBoxKey.subtitleBgOpaticy, defaultValue: 0.67);
 
   static double get subtitleStrokeWidth =>
-      setting.get(SettingBoxKey.subtitleStrokeWidth, defaultValue: 1.5);
+      setting.get(SettingBoxKey.subtitleStrokeWidth, defaultValue: 2.0);
+
+  static int get subtitleFontWeight =>
+      setting.get(SettingBoxKey.subtitleFontWeight, defaultValue: 5);
 
   static bool get badCertificateCallback =>
       setting.get(SettingBoxKey.badCertificateCallback, defaultValue: false);
@@ -420,14 +425,20 @@ class GStorage {
   static bool get enableSlideVolumeBrightness => GStorage.setting
       .get(SettingBoxKey.enableSlideVolumeBrightness, defaultValue: true);
 
+  static int get retryCount =>
+      GStorage.setting.get(SettingBoxKey.retryCount, defaultValue: 0);
+
+  static int get retryDelay =>
+      GStorage.setting.get(SettingBoxKey.retryDelay, defaultValue: 500);
+
   static List<double> get dynamicDetailRatio => List<double>.from(setting
       .get(SettingBoxKey.dynamicDetailRatio, defaultValue: [60.0, 40.0]));
 
   static List<int> get blackMidsList => List<int>.from(GStorage.localCache
       .get(LocalCacheKey.blackMidsList, defaultValue: <int>[]));
 
-  static List get danmakuFilterRule => GStorage.localCache
-      .get(LocalCacheKey.danmakuFilterRule, defaultValue: []);
+  static RuleFilter get danmakuFilterRule => GStorage.localCache
+      .get(LocalCacheKey.danmakuFilterRules, defaultValue: RuleFilter.empty());
 
   static void setBlackMidsList(blackMidsList) {
     if (blackMidsList is! List<int>) return;
@@ -535,6 +546,7 @@ class GStorage {
     Hive.registerAdapter(BiliCookieJarAdapter());
     Hive.registerAdapter(LoginAccountAdapter());
     Hive.registerAdapter(AccountTypeAdapter());
+    Hive.registerAdapter(RuleFilterAdapter());
   }
 
   static Future<void> close() async {
@@ -649,6 +661,9 @@ class SettingBoxKey {
       subtitlePaddingB = 'subtitlePaddingB',
       subtitleBgOpaticy = 'subtitleBgOpaticy',
       subtitleStrokeWidth = 'subtitleStrokeWidth',
+      subtitleFontScale = 'subtitleFontScale',
+      subtitleFontScaleFS = 'subtitleFontScaleFS',
+      subtitleFontWeight = 'subtitleFontWeight',
       badCertificateCallback = 'badCertificateCallback',
       continuePlayingPart = 'continuePlayingPart',
       cdnSpeedTest = 'cdnSpeedTest',
@@ -688,6 +703,8 @@ class SettingBoxKey {
       showDynActionBar = 'showDynActionBar',
       darkVideoPage = 'darkVideoPage',
       enableSlideVolumeBrightness = 'enableSlideVolumeBrightness',
+      retryCount = 'retryCount',
+      retryDelay = 'retryDelay',
 
       // Sponsor Block
       enableSponsorBlock = 'enableSponsorBlock',
@@ -712,8 +729,6 @@ class SettingBoxKey {
       strokeWidth = 'strokeWidth',
       fontWeight = 'fontWeight',
       memberTab = 'memberTab',
-      subtitleFontScale = 'subtitleFontScale',
-      subtitleFontScaleFS = 'subtitleFontScaleFS',
       dynamicDetailRatio = 'dynamicDetailRatio',
 
       // 代理host port
@@ -756,7 +771,7 @@ class LocalCacheKey {
       // 隐私设置-黑名单管理
       blackMidsList = 'blackMidsList',
       // 弹幕屏蔽规则
-      danmakuFilterRule = 'danmakuFilterRule',
+      danmakuFilterRules = 'danmakuFilterRules',
       // // access_key
       // accessKey = 'accessKey',
 
@@ -817,6 +832,7 @@ class Accounts {
 
       await Future.wait([
         GStorage.localCache.delete('accessKey'),
+        GStorage.localCache.delete('danmakuFilterRule'),
         dir.delete(recursive: true),
         if (isLogin)
           LoginAccount(cookies, localAccessKey['value'],
@@ -846,14 +862,23 @@ class Accounts {
     for (var i in AccountType.values) {
       accountMode[i] = AnonymousAccount();
     }
-    if (!AnonymousAccount().activited) {
-      Request.buvidActive(AnonymousAccount());
-    }
+    await AnonymousAccount().delete();
+    Request.buvidActive(AnonymousAccount());
   }
 
   static Future<void> close() async {
     account.compact();
     account.close();
+  }
+
+  static Future<void> deleteAll(Set<Account> accounts) async {
+    var isloginMain = Accounts.main.isLogin;
+    Accounts.accountMode
+        .updateAll((_, a) => accounts.contains(a) ? AnonymousAccount() : a);
+    await Future.wait(accounts.map((i) => i.delete()));
+    if (isloginMain && !Accounts.main.isLogin) {
+      await LoginUtils.onLogoutMain();
+    }
   }
 
   static Future<void> set(AccountType key, Account account) async {
@@ -863,11 +888,9 @@ class Accounts {
     if (!account.activited) await Request.buvidActive(account);
     switch (key) {
       case AccountType.main:
-        if (account.isLogin) {
-          await LoginUtils.onLoginMain();
-        } else {
-          await LoginUtils.onLogoutMain();
-        }
+        await (account.isLogin
+            ? LoginUtils.onLoginMain()
+            : LoginUtils.onLogoutMain());
         break;
       case AccountType.heartbeat:
         MineController.anonymity.value = !account.isLogin;

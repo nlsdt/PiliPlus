@@ -96,7 +96,6 @@ class VideoDetailController extends GetxController
   double? brightness;
   // 默认记录历史记录
   bool enableHeart = true;
-  dynamic userInfo;
   Floating? floating;
   late PreferredSizeWidget headerControl;
 
@@ -250,7 +249,6 @@ class VideoDetailController extends GetxController
   @override
   void onInit() {
     super.onInit();
-    userInfo = GStorage.userInfo.get('userInfoCache');
     var keys = Get.arguments.keys.toList();
     if (keys.isNotEmpty) {
       if (keys.contains('videoItem')) {
@@ -284,7 +282,7 @@ class VideoDetailController extends GetxController
         setting.get(SettingBoxKey.autoPlayEnable, defaultValue: false);
     if (autoPlay.value) isShowCover.value = false;
     enableHA.value = setting.get(SettingBoxKey.enableHA, defaultValue: true);
-    if (userInfo == null ||
+    if (!Accounts.get(AccountType.heartbeat).isLogin ||
         GStorage.localCache.get(LocalCacheKey.historyPause) == true) {
       enableHeart = false;
     }
@@ -1375,6 +1373,7 @@ class VideoDetailController extends GetxController
     }
   }
 
+  dynamic subtitles;
   late List<Map<String, String>> _vttSubtitles = <Map<String, String>>[];
   int? vttSubtitlesIndex;
   late bool showVP = true;
@@ -1501,6 +1500,7 @@ class VideoDetailController extends GetxController
       }
 
       if (res["data"] is List && res["data"].isNotEmpty) {
+        subtitles = res["data"];
         var result = await VideoHttp.vttSubtitles(res["data"]);
         if (result != null) {
           _vttSubtitles = result;
@@ -1571,6 +1571,7 @@ class VideoDetailController extends GetxController
     savedDanmaku = null;
 
     // subtitle
+    subtitles = null;
     vttSubtitlesIndex = null;
     _vttSubtitles.clear();
 

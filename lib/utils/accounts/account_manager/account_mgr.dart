@@ -19,23 +19,22 @@ final _setCookieReg = RegExp('(?<=)(,)(?=[^;]+?=)');
 class AccountManager extends Interceptor {
   static final Map<AccountType, Set<String>> apiTypeSet = {
     AccountType.heartbeat: {
-      Api.videoUrl,
       Api.videoIntro,
-      Api.relatedList,
       Api.replyList,
       Api.replyReplyList,
-      Api.searchSuggest,
-      Api.searchByType,
       Api.heartBeat,
       Api.ab2c,
       Api.bangumiInfo,
       Api.liveRoomInfo,
+      Api.liveRoomInfoH5,
       Api.onlineTotal,
       Api.dynamicDetail,
       Api.aiConclusion,
       Api.getSeasonDetailApi,
       Api.liveRoomDmToken,
       Api.liveRoomDmPrefetch,
+      Api.searchByType,
+      Api.memberDynamicSearch
     },
     AccountType.recommend: {
       Api.recommendListWeb,
@@ -43,10 +42,11 @@ class AccountManager extends Interceptor {
       Api.feedDislike,
       Api.feedDislikeCancel,
       Api.hotList,
+      Api.relatedList,
       Api.hotSearchList, // 不同账号搜索结果可能不一样
       Api.searchDefault,
       Api.searchSuggest,
-      Api.searchByType
+      Api.liveList,
     },
     AccountType.video: {Api.videoUrl, Api.bangumiVideoUrl}
   };
@@ -92,7 +92,13 @@ class AccountManager extends Interceptor {
 
     final Account account = options.extra['account'] ?? _findAccount(path);
 
-    if (account.isLogin) options.headers.addAll(account.headers);
+    if (account.isLogin) {
+      options.headers.addAll(account.headers);
+    } else if (path == Api.heartBeat) {
+      return handler.reject(
+          DioException.requestCancelled(requestOptions: options, reason: null),
+          false);
+    }
 
     // app端不需要管理cookie
     if (path.startsWith(HttpString.appBaseUrl)) {
@@ -190,8 +196,8 @@ class AccountManager extends Interceptor {
   }
 
   Future<void> _saveCookies(Response response) async {
-    final account = (response.requestOptions.extra['account'] as Account? ??
-        _findAccount(response.requestOptions.path));
+    final Account account = response.requestOptions.extra['account'] ??
+        _findAccount(response.requestOptions.path);
     final setCookies = response.headers[HttpHeaders.setCookieHeader];
     if (setCookies == null || setCookies.isEmpty) {
       return;
