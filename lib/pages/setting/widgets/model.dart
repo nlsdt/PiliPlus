@@ -15,6 +15,7 @@ import 'package:PiliPlus/models/common/super_resolution_type.dart';
 import 'package:PiliPlus/models/common/theme_type.dart';
 import 'package:PiliPlus/models/common/up_panel_position.dart';
 import 'package:PiliPlus/models/dynamics/result.dart';
+import 'package:PiliPlus/models/live/quality.dart';
 import 'package:PiliPlus/models/video/play/CDN.dart';
 import 'package:PiliPlus/models/video/play/quality.dart';
 import 'package:PiliPlus/models/video/play/subtitle.dart';
@@ -1094,6 +1095,57 @@ List<SettingsModel> get videoSettings => [
           if (result != null) {
             await GStorage.setting
                 .put(SettingBoxKey.defaultAudioQaCellular, result);
+            setState();
+          }
+        },
+      ),
+      SettingsModel(
+        settingsType: SettingsType.normal,
+        title: '直播默认画质',
+        leading: const Icon(Icons.video_settings_outlined),
+        getSubtitle: () =>
+            '当前画质：${LiveQualityCode.fromCode(GStorage.liveQuality)!.description!}',
+        onTap: (setState) async {
+          int? result = await showDialog(
+            context: Get.context!,
+            builder: (context) {
+              return SelectDialog<int>(
+                title: '直播默认画质',
+                value: GStorage.liveQuality,
+                values: LiveQuality.values.map((e) {
+                  return {'title': e.description, 'value': e.code};
+                }).toList(),
+              );
+            },
+          );
+          if (result != null) {
+            await GStorage.setting.put(SettingBoxKey.liveQuality, result);
+            setState();
+          }
+        },
+      ),
+      SettingsModel(
+        settingsType: SettingsType.normal,
+        title: '蜂窝网络直播默认画质',
+        leading: const Icon(Icons.video_settings_outlined),
+        getSubtitle: () =>
+            '当前画质：${LiveQualityCode.fromCode(GStorage.liveQualityCellular)!.description!}',
+        onTap: (setState) async {
+          int? result = await showDialog(
+            context: Get.context!,
+            builder: (context) {
+              return SelectDialog<int>(
+                title: '直播默认画质',
+                value: GStorage.liveQualityCellular,
+                values: LiveQuality.values.map((e) {
+                  return {'title': e.description, 'value': e.code};
+                }).toList(),
+              );
+            },
+          );
+          if (result != null) {
+            await GStorage.setting
+                .put(SettingBoxKey.liveQualityCellular, result);
             setState();
           }
         },

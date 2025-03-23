@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:PiliPlus/common/widgets/segment_progress_bar.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/super_resolution_type.dart';
+import 'package:PiliPlus/pages/video/detail/controller.dart';
 import 'package:PiliPlus/pages/video/detail/introduction/controller.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:PiliPlus/utils/id_utils.dart';
@@ -44,6 +45,7 @@ import 'widgets/play_pause_btn.dart';
 class PLVideoPlayer extends StatefulWidget {
   const PLVideoPlayer({
     required this.plPlayerController,
+    this.videoDetailController,
     this.videoIntroController,
     this.bangumiIntroController,
     this.headerControl,
@@ -59,6 +61,7 @@ class PLVideoPlayer extends StatefulWidget {
   });
 
   final PlPlayerController plPlayerController;
+  final VideoDetailController? videoDetailController;
   final VideoIntroController? videoIntroController;
   final BangumiIntroController? bangumiIntroController;
   final PreferredSizeWidget? headerControl;
@@ -472,16 +475,18 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             color: Colors.white,
           ),
           onTap: () {
+            if (anySeason.not) {
+              widget.showEpisodes?.call();
+              return;
+            }
             int? index;
             int currentCid = plPlayerController.cid;
             String bvid = plPlayerController.bvid;
             List episodes = [];
-            // late Function changeFucCall;
             if (isPage) {
               final List<Part> pages =
                   videoIntroController!.videoDetail.value.pages!;
               episodes = pages;
-              // changeFucCall = videoIntroController!.changeSeasonOrbangu;
             } else if (isSeason) {
               final List<SectionItem> sections =
                   videoIntroController!.videoDetail.value.ugcSeason!.sections!;
@@ -495,12 +500,10 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                   }
                 }
               }
-              // changeFucCall = videoIntroController!.changeSeasonOrbangu;
             } else if (isBangumi) {
               episodes = (bangumiIntroController!.loadingState.value as Success)
                   .response
                   .episodes!;
-              // changeFucCall = bangumiIntroController!.changeSeasonOrbangu;
             }
             widget.showEpisodes?.call(
               index,
@@ -645,15 +648,18 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
     List<BottomControlType> userSpecifyItemLeft = [
       BottomControlType.playOrPause,
       BottomControlType.time,
-      if (anySeason) BottomControlType.pre,
-      if (anySeason) BottomControlType.next,
+      if (anySeason || widget.videoDetailController?.isPlayAll == true) ...[
+        BottomControlType.pre,
+        BottomControlType.next,
+      ],
     ];
 
     List<BottomControlType> userSpecifyItemRight = [
       BottomControlType.dmChart,
       BottomControlType.superResolution,
       BottomControlType.viewPoints,
-      if (anySeason) BottomControlType.episode,
+      if (anySeason || widget.videoDetailController?.isPlayAll == true)
+        BottomControlType.episode,
       if (isFullScreen) BottomControlType.fit,
       BottomControlType.subtitle,
       BottomControlType.speed,

@@ -1308,6 +1308,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
             : PLVideoPlayer(
                 key: Key(heroTag),
                 plPlayerController: plPlayerController!,
+                videoDetailController: videoDetailController,
                 videoIntroController:
                     videoDetailController.videoType == SearchType.video
                         ? videoIntroController
@@ -1479,6 +1480,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 : PLVideoPlayer(
                     key: Key(heroTag),
                     plPlayerController: plPlayerController!,
+                    videoDetailController: videoDetailController,
                     videoIntroController:
                         videoDetailController.videoType == SearchType.video
                             ? videoIntroController
@@ -2060,10 +2062,8 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               child: SeasonPanel(
                 heroTag: heroTag,
                 onTap: false,
-                ugcSeason: videoIntroController.videoDetail.value.ugcSeason!,
                 changeFuc: videoIntroController.changeSeasonOrbangu,
                 showEpisodes: showEpisodes,
-                pages: videoIntroController.videoDetail.value.pages,
                 videoIntroController: videoIntroController,
               ),
             ),
@@ -2185,7 +2185,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     );
   }
 
-  showEpisodes(index, season, episodes, bvid, aid, cid) {
+  showEpisodes([index, season, episodes, bvid, aid, cid]) {
+    if (bvid == null) {
+      videoDetailController.showMediaListPanel(context);
+      return;
+    }
     Widget listSheetContent([bool? enableSlide]) => ListSheetContent(
           enableSlide: enableSlide,
           index: index,

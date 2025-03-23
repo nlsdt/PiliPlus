@@ -10,19 +10,15 @@ import 'package:PiliPlus/pages/video/detail/index.dart';
 class SeasonPanel extends StatefulWidget {
   const SeasonPanel({
     super.key,
-    required this.ugcSeason,
     required this.changeFuc,
     required this.heroTag,
     required this.showEpisodes,
-    required this.pages,
     this.onTap,
     required this.videoIntroController,
   });
-  final UgcSeason ugcSeason;
   final Function changeFuc;
   final String heroTag;
   final Function showEpisodes;
-  final List<Part>? pages;
   final bool? onTap;
   final VideoIntroController videoIntroController;
 
@@ -72,7 +68,8 @@ class _SeasonPanelState extends State<SeasonPanel> {
         (EpisodeItem e) => e.cid == _videoDetailController.seasonCid);
     _listener = _videoDetailController.cid.listen((int cid) {
       if (_videoDetailController.seasonCid != cid) {
-        bool isPart = widget.pages?.indexWhere((item) => item.cid == cid) != -1;
+        bool isPart =
+            videoDetail.pages?.indexWhere((item) => item.cid == cid) != -1;
         if (isPart.not) {
           _videoDetailController.seasonCid = cid;
         }
@@ -121,7 +118,7 @@ class _SeasonPanelState extends State<SeasonPanel> {
                 ? null
                 : () => widget.showEpisodes(
                       _videoDetailController.seasonIndex.value,
-                      widget.ugcSeason,
+                      videoDetail.ugcSeason,
                       null,
                       _videoDetailController.bvid,
                       null,
@@ -133,7 +130,7 @@ class _SeasonPanelState extends State<SeasonPanel> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      '合集：${widget.ugcSeason.title!}',
+                      '合集：${videoDetail.ugcSeason!.title!}',
                       style: Theme.of(context).textTheme.labelMedium,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -170,7 +167,7 @@ class _SeasonPanelState extends State<SeasonPanel> {
   }
 
   void _findEpisode() {
-    final List<SectionItem> sections = widget.ugcSeason.sections!;
+    final List<SectionItem> sections = videoDetail.ugcSeason!.sections!;
     for (int i = 0; i < sections.length; i++) {
       final List<EpisodeItem> episodesList = sections[i].episodes!;
       for (int j = 0; j < episodesList.length; j++) {

@@ -6,6 +6,7 @@ import 'package:PiliPlus/tcp/live.dart';
 import 'package:PiliPlus/utils/danmaku.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:canvas_danmaku/canvas_danmaku.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
@@ -32,7 +33,7 @@ class LiveRoomController extends GetxController {
   DanmakuController? controller;
   bool showDanmaku = true;
 
-  late int currentQn = 10000;
+  int? currentQn;
   late List<Map> acceptQnList = <Map>[];
   RxString currentQnDesc = ''.obs;
 
@@ -64,6 +65,13 @@ class LiveRoomController extends GetxController {
   final RxBool isPortrait = false.obs;
 
   Future queryLiveInfo() async {
+    if (currentQn == null) {
+      await Connectivity().checkConnectivity().then((res) {
+        currentQn = res.contains(ConnectivityResult.wifi)
+            ? GStorage.liveQuality
+            : GStorage.liveQualityCellular;
+      });
+    }
     var res = await LiveHttp.liveRoomInfo(roomId: roomId, qn: currentQn);
     if (res['status']) {
       isPortrait.value = res['data'].isPortrait ?? false;

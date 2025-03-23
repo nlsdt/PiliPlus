@@ -41,7 +41,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/dialog/dialog_route.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:html/dom.dart' as dom;
@@ -277,62 +276,63 @@ class Utils {
     required Function isFullScreen,
     double? padding,
   }) {
-    Navigator.of(context).push(
-      GetDialogRoute(
-        pageBuilder: (buildContext, animation, secondaryAnimation) {
-          return MediaQuery.orientationOf(Get.context!) == Orientation.portrait
-              ? SafeArea(
-                  child: Column(
-                    children: [
-                      const Spacer(flex: 3),
-                      Expanded(
-                        flex: 7,
-                        child: MediaQuery.removePadding(
-                          context: context,
-                          removeTop: true,
-                          removeBottom: true,
-                          removeLeft: true,
-                          removeRight: true,
-                          child: child,
-                        ),
+    Get.generalDialog(
+      barrierLabel: '',
+      barrierDismissible: true,
+      pageBuilder: (buildContext, animation, secondaryAnimation) {
+        return MediaQuery.orientationOf(Get.context!) == Orientation.portrait
+            ? SafeArea(
+                child: Column(
+                  children: [
+                    const Spacer(flex: 3),
+                    Expanded(
+                      flex: 7,
+                      child: MediaQuery.removePadding(
+                        context: context,
+                        removeTop: true,
+                        removeBottom: true,
+                        removeLeft: true,
+                        removeRight: true,
+                        child: child,
                       ),
-                      if (isFullScreen() && padding != null)
-                        SizedBox(height: padding),
-                    ],
-                  ),
-                )
-              : SafeArea(
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      Expanded(
-                        child: MediaQuery.removePadding(
-                          context: context,
-                          removeTop: true,
-                          removeBottom: true,
-                          removeLeft: true,
-                          removeRight: true,
-                          child: child,
-                        ),
+                    ),
+                    if (isFullScreen() && padding != null)
+                      SizedBox(height: padding),
+                  ],
+                ),
+              )
+            : SafeArea(
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    Expanded(
+                      child: MediaQuery.removePadding(
+                        context: context,
+                        removeTop: true,
+                        removeBottom: true,
+                        removeLeft: true,
+                        removeRight: true,
+                        child: child,
                       ),
-                    ],
-                  ),
-                );
-        },
-        transitionDuration: const Duration(milliseconds: 350),
-        transitionBuilder: (context, animation, secondaryAnimation, child) {
-          Offset begin =
-              MediaQuery.orientationOf(Get.context!) == Orientation.portrait
-                  ? Offset(0.0, 1.0)
-                  : Offset(1.0, 0.0);
-          var tween = Tween(begin: begin, end: Offset.zero)
-              .chain(CurveTween(curve: Curves.easeInOut));
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
+                    ),
+                  ],
+                ),
+              );
+      },
+      transitionDuration: const Duration(milliseconds: 350),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        Offset begin =
+            MediaQuery.orientationOf(Get.context!) == Orientation.portrait
+                ? Offset(0.0, 1.0)
+                : Offset(1.0, 0.0);
+        var tween = Tween(begin: begin, end: Offset.zero)
+            .chain(CurveTween(curve: Curves.easeInOut));
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+      routeSettings: RouteSettings(arguments: Get.arguments),
     );
   }
 

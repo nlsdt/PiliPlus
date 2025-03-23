@@ -20,8 +20,6 @@ import 'package:PiliPlus/pages/search/widgets/search_text.dart';
 import 'package:PiliPlus/pages/video/detail/introduction/controller.dart';
 import 'package:PiliPlus/pages/video/detail/note/note_list_page.dart';
 import 'package:PiliPlus/pages/video/detail/post_panel/post_panel.dart';
-import 'package:PiliPlus/pages/video/detail/related/controller.dart';
-import 'package:PiliPlus/pages/video/detail/reply/controller.dart';
 import 'package:PiliPlus/pages/video/detail/widgets/send_danmaku_panel.dart';
 import 'package:PiliPlus/pages/video/detail/widgets/media_list_panel.dart';
 import 'package:PiliPlus/utils/extension.dart';
@@ -388,90 +386,75 @@ class VideoDetailController extends GetxController
   // 稍后再看面板展开
   showMediaListPanel(context) {
     if (mediaList.isNotEmpty) {
-      childKey.currentState?.showBottomSheet(
-        backgroundColor: Colors.transparent,
-        (context) => MediaListPanel(
-          mediaList: mediaList,
-          changeMediaList: (bvid, cid, aid, cover) {
-            try {
-              Get.find<VideoIntroController>(tag: heroTag)
-                  .changeSeasonOrbangu(null, bvid, cid, aid, cover);
-            } catch (_) {}
-          },
-          panelTitle: watchLaterTitle,
-          getBvId: () => bvid,
-          count: Get.arguments['count'],
-          loadMoreMedia: getMediaList,
-          desc: _mediaDesc,
-          onReverse: () {
-            _mediaDesc = !_mediaDesc;
-            getMediaList(isReverse: true);
-          },
-          loadPrevious: Get.arguments['isContinuePlaying'] == true
-              ? () {
-                  getMediaList(isLoadPrevious: true);
-                }
-              : null,
-          onDelete: sourceType == 'watchLater' ||
-                  (sourceType == 'fav' && Get.arguments?['isOwner'] == true)
-              ? (index) async {
-                  if (sourceType == 'watchLater') {
-                    var res = await UserHttp.toViewDel(
-                      aids: [mediaList[index].aid],
-                    );
-                    if (res['status']) {
-                      mediaList.removeAt(index);
-                    }
-                    SmartDialog.showToast(res['msg']);
-                  } else {
-                    final item = mediaList[index];
-                    var res = await VideoHttp.delFav(
-                      ids: ['${item.aid}:${item.type}'],
-                      delIds: '${Get.arguments?['mediaId']}',
-                    );
-                    if (res['status']) {
-                      mediaList.removeAt(index);
-                      SmartDialog.showToast('取消收藏');
-                    } else {
+      Widget panel() => MediaListPanel(
+            mediaList: mediaList,
+            changeMediaList: (bvid, cid, aid, cover) {
+              try {
+                Get.find<VideoIntroController>(tag: heroTag)
+                    .changeSeasonOrbangu(null, bvid, cid, aid, cover);
+              } catch (_) {}
+            },
+            panelTitle: watchLaterTitle,
+            getBvId: () => bvid,
+            count: Get.arguments['count'],
+            loadMoreMedia: getMediaList,
+            desc: _mediaDesc,
+            onReverse: () {
+              _mediaDesc = !_mediaDesc;
+              getMediaList(isReverse: true);
+            },
+            loadPrevious: Get.arguments['isContinuePlaying'] == true
+                ? () {
+                    getMediaList(isLoadPrevious: true);
+                  }
+                : null,
+            onDelete: sourceType == 'watchLater' ||
+                    (sourceType == 'fav' && Get.arguments?['isOwner'] == true)
+                ? (index) async {
+                    if (sourceType == 'watchLater') {
+                      var res = await UserHttp.toViewDel(
+                        aids: [mediaList[index].aid],
+                      );
+                      if (res['status']) {
+                        mediaList.removeAt(index);
+                      }
                       SmartDialog.showToast(res['msg']);
+                    } else {
+                      final item = mediaList[index];
+                      var res = await VideoHttp.delFav(
+                        ids: ['${item.aid}:${item.type}'],
+                        delIds: '${Get.arguments?['mediaId']}',
+                      );
+                      if (res['status']) {
+                        mediaList.removeAt(index);
+                        SmartDialog.showToast('取消收藏');
+                      } else {
+                        SmartDialog.showToast(res['msg']);
+                      }
                     }
                   }
-                }
-              : null,
-        ),
-      );
+                : null,
+          );
+      if (plPlayerController.isFullScreen.value) {
+        Utils.showFSSheet(
+          context,
+          child: plPlayerController.darkVideoPage && MyApp.darkThemeData != null
+              ? Theme(
+                  data: MyApp.darkThemeData!,
+                  child: panel(),
+                )
+              : panel(),
+          isFullScreen: () => plPlayerController.isFullScreen.value,
+        );
+      } else {
+        childKey.currentState?.showBottomSheet(
+          backgroundColor: Colors.transparent,
+          (context) => panel(),
+        );
+      }
     } else {
       getMediaList();
     }
-  }
-
-  // 切换稍后再看
-  Future changeMediaList(bvid, cid, aid, cover) async {
-    try {
-      this.bvid = bvid;
-      oid.value = aid ?? IdUtils.bv2av(bvid);
-      this.cid.value = cid;
-      danmakuCid.value = cid;
-      videoItem['pic'] = cover;
-      queryVideoUrl();
-
-      if (showReply) {
-        Get.find<VideoReplyController>(tag: heroTag)
-          ..aid = aid
-          ..onRefresh();
-      }
-
-      Get.find<VideoIntroController>(tag: heroTag)
-        ..lastPlayCid.value = cid
-        ..bvid = bvid
-        ..queryVideoIntro();
-
-      if (showRelatedVideo) {
-        Get.find<RelatedController>(tag: heroTag)
-          ..bvid = bvid
-          ..onRefresh();
-      }
-    } catch (_) {}
   }
 
   int? _lastPos;

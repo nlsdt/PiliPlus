@@ -1303,7 +1303,7 @@ class _HeaderControlState extends State<HeaderControl> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('描边粗细 $subtitleStrokeWidth'),
-                        resetBtn(1.5, () => updateStrokeWidth(1.5)),
+                        resetBtn(2.0, () => updateStrokeWidth(2.0)),
                       ],
                     ),
                     Padding(

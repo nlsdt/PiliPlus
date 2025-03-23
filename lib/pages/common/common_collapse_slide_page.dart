@@ -13,7 +13,7 @@ abstract class CommonCollapseSlidePageState<T extends CommonCollapseSlidePage>
   @override
   void initState() {
     super.initState();
-    if (enableSlide && GStorage.collapsibleVideoPage) {
+    if (GStorage.collapsibleVideoPage) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -26,7 +26,7 @@ abstract class CommonCollapseSlidePageState<T extends CommonCollapseSlidePage>
 
   @override
   Widget build(BuildContext context) {
-    if (enableSlide && GStorage.collapsibleVideoPage && _isInit) {
+    if (GStorage.collapsibleVideoPage && _isInit) {
       return CustomScrollView(
         physics: const NeverScrollableScrollPhysics(),
       );

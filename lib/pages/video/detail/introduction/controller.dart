@@ -162,7 +162,7 @@ class VideoIntroController extends GetxController
           if (res.data['code'] == 0) {
             staffRelations.value = {
               'status': true,
-              ...res.data['data'],
+              if (res.data['data'] != null) ...res.data['data'],
             };
           }
         });
@@ -639,7 +639,23 @@ class VideoIntroController extends GetxController
   // 修改分P或番剧分集
   Future changeSeasonOrbangu(epid, bvid, cid, aid, cover, [isStein]) async {
     // 重新获取视频资源
-    final videoDetailCtr = Get.find<VideoDetailController>(tag: heroTag)
+    final videoDetailCtr = Get.find<VideoDetailController>(tag: heroTag);
+
+    if (videoDetailCtr.isPlayAll) {
+      if (videoDetailCtr.mediaList.indexWhere((item) => item.bvid == bvid) ==
+          -1) {
+        Utils.toViewPage(
+          'bvid=$bvid&cid=$cid',
+          arguments: {
+            if (cover != null) 'pic': cover,
+            'heroTag': Utils.makeHeroTag(bvid),
+          },
+        );
+        return;
+      }
+    }
+
+    videoDetailCtr
       ..plPlayerController.pause()
       ..makeHeartBeat()
       ..updateMediaListHistory(aid)
@@ -724,13 +740,18 @@ class VideoIntroController extends GetxController
   }
 
   /// 播放上一个
-  bool prevPlay() {
+  bool prevPlay([bool skipPages = false]) {
     final List episodes = [];
     bool isPages = false;
-    if ((videoDetail.value.pages?.length ?? 0) > 1) {
+
+    final videoDetailCtr = Get.find<VideoDetailController>(tag: heroTag);
+
+    if (skipPages.not && (videoDetail.value.pages?.length ?? 0) > 1) {
       isPages = true;
       final List<Part> pages = videoDetail.value.pages!;
       episodes.addAll(pages);
+    } else if (videoDetailCtr.isPlayAll) {
+      episodes.addAll(videoDetailCtr.mediaList);
     } else if (videoDetail.value.ugcSeason != null) {
       final UgcSeason ugcSeason = videoDetail.value.ugcSeason!;
       final List<SectionItem> sections = ugcSeason.sections!;
@@ -739,14 +760,19 @@ class VideoIntroController extends GetxController
         episodes.addAll(episodesList);
       }
     }
-    final int currentIndex =
-        episodes.indexWhere((e) => e.cid == lastPlayCid.value);
+
+    final int currentIndex = episodes.indexWhere((e) =>
+        e.cid ==
+        (skipPages ? videoDetail.value.pages!.first.cid : lastPlayCid.value));
     int prevIndex = currentIndex - 1;
-    final videoDetailCtr = Get.find<VideoDetailController>(tag: heroTag);
     final PlayRepeat playRepeat = videoDetailCtr.plPlayerController.playRepeat;
 
     // 列表循环
     if (prevIndex < 0) {
+      if (isPages &&
+          (videoDetailCtr.isPlayAll || videoDetail.value.ugcSeason != null)) {
+        return prevPlay(true);
+      }
       if (playRepeat == PlayRepeat.listCycle) {
         prevIndex = episodes.length - 1;
       } else {
@@ -761,14 +787,14 @@ class VideoIntroController extends GetxController
   }
 
   /// 列表循环或者顺序播放时，自动播放下一个
-  bool nextPlay() {
+  bool nextPlay([bool skipPages = false]) {
     try {
       final List episodes = [];
       bool isPages = false;
       final videoDetailCtr = Get.find<VideoDetailController>(tag: heroTag);
 
       // part -> playall -> season
-      if ((videoDetail.value.pages?.length ?? 0) > 1) {
+      if (skipPages.not && (videoDetail.value.pages?.length ?? 0) > 1) {
         isPages = true;
         final List<Part> pages = videoDetail.value.pages!;
         episodes.addAll(pages);
@@ -794,16 +820,26 @@ class VideoIntroController extends GetxController
         return false;
       }
 
-      final int currentIndex =
-          episodes.indexWhere((e) => e.cid == videoDetailCtr.cid.value);
+      final int currentIndex = episodes.indexWhere((e) =>
+          e.cid ==
+          (skipPages
+              ? videoDetail.value.pages!.first.cid
+              : videoDetailCtr.cid.value));
       int nextIndex = currentIndex + 1;
 
-      if (videoDetailCtr.isPlayAll && currentIndex == episodes.length - 2) {
+      if (isPages.not &&
+          videoDetailCtr.isPlayAll &&
+          currentIndex == episodes.length - 2) {
         videoDetailCtr.getMediaList();
       }
 
       // 列表循环
       if (nextIndex >= episodes.length) {
+        if (isPages &&
+            (videoDetailCtr.isPlayAll || videoDetail.value.ugcSeason != null)) {
+          return nextPlay(true);
+        }
+
         if (playRepeat == PlayRepeat.listCycle) {
           nextIndex = 0;
         } else if (playRepeat == PlayRepeat.autoPlayRelated &&

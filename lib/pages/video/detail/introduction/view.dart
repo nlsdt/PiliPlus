@@ -838,13 +838,14 @@ class _VideoInfoState extends State<VideoInfo> with TickerProviderStateMixin {
                       (context.orientation != Orientation.landscape ||
                           (context.orientation == Orientation.landscape &&
                               videoDetailCtr.horizontalSeasonPanel.not)))
-                    SeasonPanel(
-                      heroTag: widget.heroTag,
-                      ugcSeason: videoDetail.ugcSeason!,
-                      changeFuc: videoIntroController.changeSeasonOrbangu,
-                      showEpisodes: widget.showEpisodes,
-                      pages: videoDetail.pages,
-                      videoIntroController: videoIntroController,
+                    Obx(
+                      () => SeasonPanel(
+                        key: ValueKey(videoIntroController.videoDetail.value),
+                        heroTag: widget.heroTag,
+                        changeFuc: videoIntroController.changeSeasonOrbangu,
+                        showEpisodes: widget.showEpisodes,
+                        videoIntroController: videoIntroController,
+                      ),
                     ),
                   if (!widget.loadingStatus &&
                       videoDetail.pages != null &&
@@ -852,12 +853,15 @@ class _VideoInfoState extends State<VideoInfo> with TickerProviderStateMixin {
                       (context.orientation != Orientation.landscape ||
                           (context.orientation == Orientation.landscape &&
                               videoDetailCtr.horizontalSeasonPanel.not))) ...[
-                    PagesPanel(
-                      heroTag: widget.heroTag,
-                      videoIntroController: videoIntroController,
-                      bvid: videoIntroController.bvid,
-                      changeFuc: videoIntroController.changeSeasonOrbangu,
-                      showEpisodes: widget.showEpisodes,
+                    Obx(
+                      () => PagesPanel(
+                        key: ValueKey(videoIntroController.videoDetail.value),
+                        heroTag: widget.heroTag,
+                        videoIntroController: videoIntroController,
+                        bvid: videoIntroController.bvid,
+                        changeFuc: videoIntroController.changeSeasonOrbangu,
+                        showEpisodes: widget.showEpisodes,
+                      ),
                     ),
                   ],
                 ],

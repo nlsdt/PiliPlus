@@ -142,7 +142,7 @@ class _ListSheetContentState extends CommonSlidePageState<ListSheetContent>
       }();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (enableSlide && GStorage.collapsibleVideoPage) {
+      if (GStorage.collapsibleVideoPage) {
         if (mounted) {
           setState(() {
             _isInit = false;
@@ -295,7 +295,7 @@ class _ListSheetContentState extends CommonSlidePageState<ListSheetContent>
 
   @override
   Widget build(BuildContext context) {
-    if (enableSlide && GStorage.collapsibleVideoPage && _isInit) {
+    if (GStorage.collapsibleVideoPage && _isInit) {
       return CustomScrollView(
         physics: const NeverScrollableScrollPhysics(),
       );
