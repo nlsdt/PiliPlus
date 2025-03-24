@@ -413,6 +413,7 @@ class VideoHttp {
         'select_like': selectLike.toString(),
         // 'csrf': Accounts.main.csrf,
       },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
     if (res.data['code'] == 0) {
       return {'status': true, 'data': res.data['data']};
