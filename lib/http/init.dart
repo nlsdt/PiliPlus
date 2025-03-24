@@ -96,9 +96,9 @@ class Request {
         //请求基地址,可以包含子路径
         baseUrl: HttpString.apiBaseUrl,
         //连接服务器超时时间，单位是毫秒.
-        connectTimeout: const Duration(milliseconds: 4000),
+        connectTimeout: const Duration(milliseconds: 10000),
         //响应流上前后两次接受到数据的间隔，单位为毫秒。
-        receiveTimeout: const Duration(milliseconds: 4000),
+        receiveTimeout: const Duration(milliseconds: 10000),
         //Http请求头.
         headers: {
           'connection': 'keep-alive',

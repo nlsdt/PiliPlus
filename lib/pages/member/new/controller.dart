@@ -24,7 +24,7 @@ class MemberControllerNew extends CommonController
     with GetTickerProviderStateMixin {
   MemberControllerNew({required this.mid});
   int mid;
-  RxDouble scrollRatio = 0.0.obs;
+  RxBool showUname = false.obs;
   String? username;
   int? ownerMid;
   RxBool isFollow = false.obs;
@@ -130,7 +130,7 @@ class MemberControllerNew extends CommonController
       vsync: this,
       length: tabs.length,
     );
-    scrollRatio.value = 1;
+    showUname.value = true;
     username = errMsg;
     loadingState.value = LoadingState.success(null);
     return true;

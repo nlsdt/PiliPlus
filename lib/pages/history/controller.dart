@@ -1,5 +1,6 @@
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/common/multi_select_controller.dart';
+import 'package:PiliPlus/pages/history/base_controller.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -8,8 +9,15 @@ import 'package:PiliPlus/http/user.dart';
 import 'package:PiliPlus/models/user/history.dart';
 import 'package:PiliPlus/utils/storage.dart';
 
-class HistoryController extends MultiSelectController {
-  RxBool pauseStatus = false.obs;
+class HistoryController extends MultiSelectController
+    with GetTickerProviderStateMixin {
+  HistoryController(this.type);
+
+  late final baseCtr = Get.put(HistoryBaseController());
+
+  final String? type;
+  TabController? tabController;
+  late RxList<HisTabItem> tabs = <HisTabItem>[].obs;
 
   int? max;
   int? viewAt;
@@ -29,12 +37,45 @@ class HistoryController extends MultiSelectController {
   }
 
   @override
+  onSelect(int index) {
+    List list = (loadingState.value as Success).response;
+    list[index].checked = !(list[index]?.checked ?? false);
+    baseCtr.checkedCount.value =
+        list.where((item) => item.checked == true).length;
+    loadingState.value = LoadingState.success(list);
+    if (baseCtr.checkedCount.value == 0) {
+      baseCtr.enableMultiSelect.value = false;
+    }
+  }
+
+  @override
+  void handleSelect([bool checked = false]) {
+    if (loadingState.value is Success) {
+      List list = (loadingState.value as Success).response;
+      if (list.isNotEmpty) {
+        loadingState.value = LoadingState.success(
+            list.map((item) => item..checked = checked).toList());
+        baseCtr.checkedCount.value = checked ? list.length : 0;
+      }
+    }
+    if (checked.not) {
+      baseCtr.enableMultiSelect.value = false;
+    }
+  }
+
+  @override
   bool customHandleResponse(Success response) {
     HistoryData data = response.response;
     isEnd = data.list.isNullOrEmpty || data.list!.length < 20;
     max = data.list?.lastOrNull?.history?.oid;
     viewAt = data.list?.lastOrNull?.viewAt;
-    if (currentPage != 1 && loadingState.value is Success) {
+    if (currentPage == 1) {
+      if (type == null && tabs.isEmpty && data.tab?.isNotEmpty == true) {
+        tabs.value = data.tab!;
+        tabController =
+            TabController(length: data.tab!.length + 1, vsync: this);
+      }
+    } else if (loadingState.value is Success) {
       data.list ??= <HisListItem>[];
       data.list!.insertAll(
         0,
@@ -45,77 +86,15 @@ class HistoryController extends MultiSelectController {
     return true;
   }
 
-  // 暂停观看历史
-  Future onPauseHistory(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('提示'),
-          content:
-              Text(!pauseStatus.value ? '啊叻？你要暂停历史记录功能吗？' : '啊叻？要恢复历史记录功能吗？'),
-          actions: [
-            TextButton(onPressed: Get.back, child: const Text('取消')),
-            TextButton(
-              onPressed: () async {
-                SmartDialog.showLoading(msg: '请求中');
-                var res = await UserHttp.pauseHistory(!pauseStatus.value);
-                SmartDialog.dismiss();
-                if (res.data['code'] == 0) {
-                  SmartDialog.showToast(
-                      !pauseStatus.value ? '暂停观看历史' : '恢复观看历史');
-                  pauseStatus.value = !pauseStatus.value;
-                  GStorage.localCache
-                      .put(LocalCacheKey.historyPause, pauseStatus.value);
-                }
-                Get.back();
-              },
-              child: Text(!pauseStatus.value ? '确认暂停' : '确认恢复'),
-            )
-          ],
-        );
-      },
-    );
-  }
-
   // 观看历史暂停状态
   Future historyStatus() async {
     var res = await UserHttp.historyStatus();
     if (res['status']) {
-      pauseStatus.value = res['data'];
+      baseCtr.pauseStatus.value = res['data'];
       GStorage.localCache.put(LocalCacheKey.historyPause, res['data']);
     } else {
       SmartDialog.showToast(res['msg']);
     }
-  }
-
-  // 清空观看历史
-  Future onClearHistory(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('提示'),
-          content: const Text('啊叻？你要清空历史记录功能吗？'),
-          actions: [
-            TextButton(onPressed: Get.back, child: const Text('取消')),
-            TextButton(
-              onPressed: () async {
-                SmartDialog.showLoading(msg: '请求中');
-                var res = await UserHttp.clearHistory();
-                SmartDialog.dismiss();
-                if (res.data['code'] == 0) {
-                  SmartDialog.showToast('清空观看历史');
-                }
-                Get.back();
-                loadingState.value = LoadingState.success([]);
-              },
-              child: const Text('确认清空'),
-            )
-          ],
-        );
-      },
-    );
   }
 
   // 删除某条历史记录
@@ -155,9 +134,9 @@ class HistoryController extends MultiSelectController {
       } else {
         onReload();
       }
-      if (enableMultiSelect.value) {
-        checkedCount.value = 0;
-        enableMultiSelect.value = false;
+      if (baseCtr.enableMultiSelect.value) {
+        baseCtr.checkedCount.value = 0;
+        baseCtr.enableMultiSelect.value = false;
       }
     }
     SmartDialog.dismiss();
@@ -201,5 +180,11 @@ class HistoryController extends MultiSelectController {
 
   @override
   Future<LoadingState> customGetData() =>
-      UserHttp.historyList(max: max, viewAt: viewAt);
+      UserHttp.historyList(type: type ?? 'all', max: max, viewAt: viewAt);
+
+  @override
+  void onClose() {
+    tabController?.dispose();
+    super.onClose();
+  }
 }

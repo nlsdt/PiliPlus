@@ -1393,7 +1393,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
               return const SizedBox.shrink();
             }
             return Positioned(
-                bottom: -1,
+                bottom: -2.2,
                 left: 0,
                 right: 0,
                 child: Semantics(
@@ -1410,46 +1410,48 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                       if (plPlayerController.viewPointList.isNotEmpty &&
                           plPlayerController.showVP.value)
                         buildViewPointWidget(plPlayerController, 4.25),
-                      ProgressBar(
-                        progress: Duration(seconds: value),
-                        buffered: Duration(seconds: buffer),
-                        total: Duration(seconds: max),
-                        progressBarColor: colorTheme,
-                        baseBarColor: Colors.white.withOpacity(0.2),
-                        bufferedBarColor: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.4),
-                        timeLabelLocation: TimeLabelLocation.none,
-                        thumbColor: colorTheme,
-                        barHeight: 3.5,
-                        thumbRadius: draggingFixedProgressBar.value ? 7 : 2.5,
-                        // onDragStart: (duration) {
-                        //   feedBack();
-                        //   plPlayerController.onChangedSliderStart();
-                        // },
-                        // onDragUpdate: (duration) {
-                        //   plPlayerController
-                        //       .onUpdatedSliderProgress(duration.timeStamp);
-                        //   if (plPlayerController.showSeekPreview) {
-                        //     if (plPlayerController.showPreview.value.not) {
-                        //       plPlayerController.showPreview.value = true;
-                        //     }
-                        //     plPlayerController.previewDx.value =
-                        //         duration.localPosition.dx;
-                        //   }
-                        // },
-                        // onSeek: (duration) {
-                        //   if (plPlayerController.showSeekPreview) {
-                        //     plPlayerController.showPreview.value = false;
-                        //   }
-                        //   plPlayerController.onChangedSliderEnd();
-                        //   plPlayerController
-                        //       .onChangedSlider(duration.inSeconds.toDouble());
-                        //   plPlayerController.seekTo(
-                        //       Duration(seconds: duration.inSeconds),
-                        //       type: 'slider');
-                        // },
+                      IgnorePointer(
+                        child: ProgressBar(
+                          progress: Duration(seconds: value),
+                          buffered: Duration(seconds: buffer),
+                          total: Duration(seconds: max),
+                          progressBarColor: colorTheme,
+                          baseBarColor: Colors.white.withOpacity(0.2),
+                          bufferedBarColor: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.4),
+                          timeLabelLocation: TimeLabelLocation.none,
+                          thumbColor: colorTheme,
+                          barHeight: 3.5,
+                          thumbRadius: draggingFixedProgressBar.value ? 7 : 2.5,
+                          // onDragStart: (duration) {
+                          //   feedBack();
+                          //   plPlayerController.onChangedSliderStart();
+                          // },
+                          // onDragUpdate: (duration) {
+                          //   plPlayerController
+                          //       .onUpdatedSliderProgress(duration.timeStamp);
+                          //   if (plPlayerController.showSeekPreview) {
+                          //     if (plPlayerController.showPreview.value.not) {
+                          //       plPlayerController.showPreview.value = true;
+                          //     }
+                          //     plPlayerController.previewDx.value =
+                          //         duration.localPosition.dx;
+                          //   }
+                          // },
+                          // onSeek: (duration) {
+                          //   if (plPlayerController.showSeekPreview) {
+                          //     plPlayerController.showPreview.value = false;
+                          //   }
+                          //   plPlayerController.onChangedSliderEnd();
+                          //   plPlayerController
+                          //       .onChangedSlider(duration.inSeconds.toDouble());
+                          //   plPlayerController.seekTo(
+                          //       Duration(seconds: duration.inSeconds),
+                          //       type: 'slider');
+                          // },
+                        ),
                       ),
                       if (plPlayerController.segmentList.isNotEmpty)
                         Positioned(

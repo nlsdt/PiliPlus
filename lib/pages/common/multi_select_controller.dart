@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:PiliPlus/utils/extension.dart';
 
 abstract class MultiSelectController extends CommonController {
-  RxBool enableMultiSelect = false.obs;
-  RxInt checkedCount = 0.obs;
+  late final RxBool enableMultiSelect = false.obs;
+  late final RxInt checkedCount = 0.obs;
 
   onSelect(int index) {
     List list = (loadingState.value as Success).response;

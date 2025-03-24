@@ -32,7 +32,7 @@ Widget content(context, item, source, callback) {
 
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 12),
+    padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

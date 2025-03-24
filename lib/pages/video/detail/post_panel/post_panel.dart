@@ -95,6 +95,7 @@ class _PostPanelState extends CommonCollapseSlidePageState<PostPanel> {
                   ...List.generate(
                     list!.length,
                     (index) => Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         Container(
                           width: double.infinity,
@@ -284,8 +285,8 @@ class _PostPanelState extends CommonCollapseSlidePageState<PostPanel> {
                           ),
                         ),
                         Positioned(
-                          top: 10,
-                          right: 21,
+                          top: 0,
+                          right: 4,
                           child: iconButton(
                             context: context,
                             size: 26,
@@ -426,7 +427,7 @@ class _PostPanelState extends CommonCollapseSlidePageState<PostPanel> {
       iconButton(
         context: context,
         size: 26,
-        tooltip: '使用当前位置时间',
+        tooltip: '设为当前',
         icon: Icons.my_location,
         onPressed: () {
           setState(() {
@@ -434,6 +435,24 @@ class _PostPanelState extends CommonCollapseSlidePageState<PostPanel> {
               isFirst: isFirst,
               index: index,
               value: plPlayerController.positionSeconds.value,
+            );
+          });
+        },
+      ),
+      const SizedBox(width: 5),
+      iconButton(
+        context: context,
+        size: 26,
+        tooltip: isFirst ? '视频开头' : '视频结尾',
+        icon: isFirst ? Icons.first_page : Icons.last_page,
+        onPressed: () {
+          setState(() {
+            updateSegment(
+              isFirst: isFirst,
+              index: index,
+              value: isFirst
+                  ? 0
+                  : plPlayerController.durationSeconds.value.inSeconds,
             );
           });
         },

@@ -1,5 +1,7 @@
 import 'package:PiliPlus/common/widgets/dialog.dart';
 import 'package:PiliPlus/http/loading_state.dart';
+import 'package:PiliPlus/pages/mine/controller.dart';
+import 'package:PiliPlus/utils/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:PiliPlus/http/search.dart';
@@ -88,9 +90,12 @@ class SSearchController extends GetxController {
       validateUid();
     }
 
-    historyList.remove(controller.text);
-    historyList.insert(0, controller.text);
-    GStorage.historyWord.put('cacheList', historyList);
+    if (MineController.anonymity.value.not) {
+      historyList.remove(controller.text);
+      historyList.insert(0, controller.text);
+      GStorage.historyWord.put('cacheList', historyList);
+    }
+
     searchFocusNode.unfocus();
 
     await Get.toNamed(

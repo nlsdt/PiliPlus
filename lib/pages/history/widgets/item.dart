@@ -3,6 +3,7 @@ import 'package:PiliPlus/common/widgets/video_progress_indicator.dart';
 import 'package:PiliPlus/models/user/history.dart';
 import 'package:PiliPlus/pages/common/multi_select_controller.dart';
 import 'package:PiliPlus/pages/fav_search/controller.dart';
+import 'package:PiliPlus/pages/history/base_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -22,11 +23,14 @@ class HistoryItem extends StatelessWidget {
   final dynamic videoItem;
   final dynamic ctr;
   final Function? onChoose;
+  final Function? onDelete;
+
   const HistoryItem({
     super.key,
     required this.videoItem,
     this.ctr,
     this.onChoose,
+    this.onDelete,
   });
 
   @override
@@ -35,7 +39,8 @@ class HistoryItem extends StatelessWidget {
     String bvid = videoItem.history.bvid ?? IdUtils.av2bv(aid);
     return InkWell(
       onTap: () async {
-        if (ctr is MultiSelectController && ctr!.enableMultiSelect.value) {
+        if ((ctr is MultiSelectController || ctr is HistoryBaseController) &&
+            ctr!.enableMultiSelect.value) {
           feedBack();
           onChoose?.call();
           return;
@@ -372,8 +377,11 @@ class HistoryItem extends StatelessWidget {
                           ),
                         ),
                       PopupMenuItem<String>(
-                        onTap: () => ctr!.delHistory(
-                            videoItem.kid, videoItem.history.business),
+                        onTap: () => ctr is HistoryBaseController
+                            ? onDelete?.call(
+                                videoItem.kid, videoItem.history.business)
+                            : ctr!.delHistory(
+                                videoItem.kid, videoItem.history.business),
                         height: 35,
                         child: const Row(
                           children: [

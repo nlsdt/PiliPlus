@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:PiliPlus/common/widgets/dynamic_sliver_appbar.dart';
 import 'package:PiliPlus/common/widgets/loading_widget.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -46,8 +44,8 @@ class _MemberPageNewState extends State<MemberPageNew>
   }
 
   void listener() {
-    _userController.scrollRatio.value =
-        min(1.0, _userController.scrollController.offset.round() / 120);
+    _userController.showUname.value =
+        _userController.scrollController.offset >= 120;
   }
 
   @override
@@ -199,7 +197,7 @@ class _MemberPageNewState extends State<MemberPageNew>
             child: const BackButton(),
           ),
           title: IgnorePointer(
-            child: Obx(() => _userController.scrollRatio.value == 1 &&
+            child: Obx(() => _userController.showUname.value &&
                     _userController.username != null
                 ? Padding(
                     padding: EdgeInsets.only(top: _userController.top ?? 0),
