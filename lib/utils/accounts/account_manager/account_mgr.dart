@@ -132,7 +132,7 @@ class AccountManager extends Interceptor {
           ...cookies,
         ]);
         options.headers[HttpHeaders.cookieHeader] =
-            newCookies.isNotEmpty ? newCookies : null;
+            newCookies.isNotEmpty ? newCookies : '';
         handler.next(options);
       }).catchError((dynamic e, StackTrace s) {
         final err = DioException(

@@ -123,6 +123,9 @@ class _FavSearchPageState extends State<FavSearchPage> {
                 )
               : _favSearchCtr.searchType == SearchType.follow
                   ? ListView.builder(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).padding.bottom + 80,
+                      ),
                       controller: _favSearchCtr.scrollController,
                       itemCount: loadingState.response.length,
                       itemBuilder: ((context, index) {
@@ -138,24 +141,29 @@ class _FavSearchPageState extends State<FavSearchPage> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       controller: _favSearchCtr.scrollController,
                       slivers: [
-                        SliverGrid(
-                          gridDelegate: SliverGridDelegateWithExtentAndRatio(
-                            mainAxisSpacing: 2,
-                            maxCrossAxisExtent: Grid.mediumCardWidth * 2,
-                            childAspectRatio: StyleString.aspectRatio * 2.2,
+                        SliverPadding(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).padding.bottom + 80,
                           ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              if (index == loadingState.response.length - 1) {
-                                _favSearchCtr.onLoadMore();
-                              }
-                              return HistoryItem(
-                                videoItem: loadingState.response[index],
-                                ctr: _favSearchCtr,
-                                onChoose: null,
-                              );
-                            },
-                            childCount: loadingState.response.length,
+                          sliver: SliverGrid(
+                            gridDelegate: SliverGridDelegateWithExtentAndRatio(
+                              mainAxisSpacing: 2,
+                              maxCrossAxisExtent: Grid.mediumCardWidth * 2,
+                              childAspectRatio: StyleString.aspectRatio * 2.2,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                if (index == loadingState.response.length - 1) {
+                                  _favSearchCtr.onLoadMore();
+                                }
+                                return HistoryItem(
+                                  videoItem: loadingState.response[index],
+                                  ctr: _favSearchCtr,
+                                  onChoose: null,
+                                );
+                              },
+                              childCount: loadingState.response.length,
+                            ),
                           ),
                         ),
                       ],

@@ -52,13 +52,17 @@ class FavSearchController extends CommonController {
     List? dataList = searchType == SearchType.fav
         ? (currentPage == 1
             ? response.response.medias
-            : currentList + response.response.medias)
+            : response.response.medias != null
+                ? currentList + response.response.medias
+                : currentList)
         : (currentPage == 1
             ? response.response.list
-            : currentList + response.response.list);
+            : response.response.list != null
+                ? currentList + response.response.list
+                : currentList);
     isEnd = searchType == SearchType.fav
         ? response.response.hasMore == false
-        : response.response.list.isEmpty;
+        : response.response.list == null || response.response.list.isEmpty;
     loadingState.value = LoadingState.success(dataList);
     return true;
   }

@@ -176,8 +176,10 @@ class GStorage {
         defaultValue: VideoDecodeFormats.values[1].code,
       );
 
-  static String get hardwareDecoding =>
-      setting.get(SettingBoxKey.hardwareDecoding, defaultValue: 'auto');
+  static String get hardwareDecoding => setting.get(
+        SettingBoxKey.hardwareDecoding,
+        defaultValue: Platform.isAndroid ? 'auto-safe' : 'auto',
+      );
 
   static String get videoSync => setting.get(
         SettingBoxKey.videoSync,
