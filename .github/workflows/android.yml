@@ -8,6 +8,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 输出环境版本信息
+        run: |
+          uname -a
+          cat /proc/version
+          cat /etc/redhat-release
+          cat /etc/issue
+
       - name: 代码迁出
         uses: actions/checkout@v4
         with:
