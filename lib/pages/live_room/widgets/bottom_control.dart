@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:PiliPlus/pages/live_room/index.dart';
 import 'package:PiliPlus/plugin/pl_player/index.dart';
 import 'package:get/get.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class BottomControl extends StatelessWidget implements PreferredSizeWidget {
   const BottomControl({
@@ -77,6 +78,18 @@ class BottomControl extends StatelessWidget implements PreferredSizeWidget {
           //   ),
           // ),
           // const SizedBox(width: 4),
+          Obx(
+            () => IconButton(
+              onPressed: plPlayerController.setOnlyPlayAudio,
+              icon: Icon(
+                size: 18,
+                plPlayerController.onlyPlayAudio.value
+                    ? MdiIcons.musicCircle
+                    : MdiIcons.musicCircleOutline,
+                color: Colors.white,
+              ),
+            ),
+          ),
           Obx(
             () => IconButton(
               onPressed: () {

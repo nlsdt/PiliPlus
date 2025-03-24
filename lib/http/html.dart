@@ -14,12 +14,21 @@ class HtmlHttp {
     var response = await Request().get(
       "https://www.bilibili.com/opus/$id",
       extra: {'ua': 'pc'},
+      options: Options(
+        followRedirects: false,
+        validateStatus: (status) => true,
+      ),
     );
     if (response.data is! String && response.data is! List<int>) {
       return;
     }
     try {
       if (response.data.contains('Redirecting to')) {
+        String? cvid = RegExp(r'cv\d+').firstMatch(response.data)?.group(0);
+        if (cvid != null) {
+          return await reqReadHtml(cvid, dynamicType, false);
+        }
+
         RegExp regex = RegExp(r'//([\w\.]+)/(\w+)/(\w+)');
         Match match = regex.firstMatch(response.data)!;
         String matchedString = match.group(0)!;
@@ -75,11 +84,13 @@ class HtmlHttp {
   }
 
   // read
-  static Future reqReadHtml(id, dynamicType) async {
-    String? redirectUrl = await UrlUtils.parseRedirectUrl(
-        'https://www.bilibili.com/$dynamicType/$id/');
-    if (redirectUrl != null) {
-      return await reqHtml(redirectUrl.split('/').last, dynamicType);
+  static Future reqReadHtml(id, dynamicType, [bool redirect = true]) async {
+    if (redirect) {
+      String? redirectUrl = await UrlUtils.parseRedirectUrl(
+          'https://www.bilibili.com/$dynamicType/$id/');
+      if (redirectUrl != null) {
+        return await reqHtml(redirectUrl.split('/').last, dynamicType);
+      }
     }
 
     var response = await Request().get(

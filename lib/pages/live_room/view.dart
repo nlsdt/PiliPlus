@@ -15,6 +15,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:PiliPlus/common/widgets/network_img_layer.dart';
 import 'package:PiliPlus/plugin/pl_player/index.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 
 import '../../utils/storage.dart';
@@ -396,6 +397,17 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                       ],
                     ),
                     const Spacer(),
+                    Obx(
+                      () => IconButton(
+                        onPressed: plPlayerController.setOnlyPlayAudio,
+                        icon: Icon(
+                          plPlayerController.onlyPlayAudio.value
+                              ? MdiIcons.musicCircle
+                              : MdiIcons.musicCircleOutline,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                     //刷新
                     IconButton(
                       tooltip: '刷新',

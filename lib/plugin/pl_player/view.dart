@@ -928,14 +928,15 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                 subtitleViewConfiguration:
                     plPlayerController.subtitleViewConfiguration,
                 fit: plPlayerController.videoFit.value,
+                dmWidget: widget.danmuWidget,
               ),
             ),
           ),
         ),
 
-        /// 弹幕面板
-        if (widget.danmuWidget != null)
-          Positioned.fill(top: 4, child: widget.danmuWidget!),
+        // /// 弹幕面板
+        // if (widget.danmuWidget != null)
+        //   Positioned.fill(top: 4, child: widget.danmuWidget!),
 
         /// 长按倍速 toast
         Obx(

@@ -82,7 +82,6 @@ class Request {
       await Request().post(Api.activateBuvidApi,
           data: {'payload': jsonData},
           options: Options(contentType: Headers.jsonContentType));
-      ;
     } catch (e) {
       log("setCookie, $e");
     }
