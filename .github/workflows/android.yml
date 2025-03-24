@@ -49,10 +49,10 @@ jobs:
       - name: 下载项目依赖
         run: flutter pub get
 
-      - name: 更新版本号
-        run: |
-          version_name=$(yq e .version pubspec.yaml | cut -d "+" -f 1)
-          sed -i "s/version: .*/version: $version_name-$(git rev-parse --short HEAD)+$(git rev-list --count HEAD)/g" pubspec.yaml
+      #- name: 更新版本号
+      #  run: |
+     #     version_name=$(yq e .version pubspec.yaml | cut -d "+" -f 1)
+       #   sed -i "s/version: .*/version: $version_name-$(git rev-parse --short HEAD)+$(git rev-list --count HEAD)/g" pubspec.yaml
 
       - name: Write key
         run: |
