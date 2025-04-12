@@ -58,8 +58,9 @@ class ReplyReplyData {
   ReplyItemModel? root;
 
   ReplyReplyData.fromJson(Map<String, dynamic> json) {
-    page = ReplyPage.fromJson(json['page']);
-    config = ReplyConfig.fromJson(json['config']);
+    page = json['page'] == null ? null : ReplyPage.fromJson(json['page']);
+    config =
+        json['config'] == null ? null : ReplyConfig.fromJson(json['config']);
     replies = (json['replies'] as List?)
         ?.map<ReplyItemModel>(
             (item) => ReplyItemModel.fromJson(item, json['upper']['mid']))
@@ -69,7 +70,9 @@ class ReplyReplyData {
             item, json['upper']['mid'],
             isTopStatus: true))
         .toList();
-    upper = ReplyUpper.fromJson(json['upper']);
-    root = ReplyItemModel.fromJson(json['root'], json['upper']['mid']);
+    upper = json['upper'] == null ? null : ReplyUpper.fromJson(json['upper']);
+    root = json['root'] == null
+        ? null
+        : ReplyItemModel.fromJson(json['root'], json['upper']?['mid']);
   }
 }

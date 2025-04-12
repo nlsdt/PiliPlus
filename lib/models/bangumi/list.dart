@@ -68,8 +68,10 @@ class BangumiListItemModel with MultiSelectData {
   String? titleIcon;
   Map? newEp;
   String? progress;
+  String? renewalTime;
 
   BangumiListItemModel.fromJson(Map<String, dynamic> json) {
+    renewalTime = json['renewal_time'];
     badge = json['badge'] == '' ? null : json['badge'];
     badgeType = json['badge_type'];
     cover = json['cover'];

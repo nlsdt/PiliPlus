@@ -84,13 +84,16 @@ class ReplyItemModel {
     parentStr = json['parent_str'];
     like = json['like'];
     action = json['action'];
-    member = ReplyMember.fromJson(json['member']);
-    content = ReplyContent.fromJson(json['content']);
+    member =
+        json['member'] == null ? null : ReplyMember.fromJson(json['member']);
+    content =
+        json['content'] == null ? null : ReplyContent.fromJson(json['content']);
     replies = (json['replies'] as List?)
         ?.map((item) => ReplyItemModel.fromJson(item, upperMid))
         .toList();
     assist = json['assist'];
-    upAction = UpAction.fromJson(json['up_action']);
+    upAction =
+        json['up_action'] == null ? null : UpAction.fromJson(json['up_action']);
     invisible = json['invisible'];
     replyControl = json['reply_control'] == null
         ? null

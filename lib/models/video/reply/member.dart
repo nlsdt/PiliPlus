@@ -28,7 +28,8 @@ class ReplyMember {
     sign = json['sign'];
     avatar = json['avatar'];
     level = json['level_info']['current_level'];
-    pendant = Pendant.fromJson(json['pendant']);
+    pendant =
+        json['pendant'] == null ? null : Pendant.fromJson(json['pendant']);
     officialVerify = json['official_verify'];
     vip = json['vip'];
     fansDetail = json['fans_detail'];

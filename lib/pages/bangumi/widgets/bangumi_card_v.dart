@@ -57,7 +57,15 @@ class BangumiCardV extends StatelessWidget {
                           bottom: null,
                           left: null,
                         ),
-                      if (bangumiItem.order != null)
+                      if (bangumiItem.isFinish == 0 &&
+                          bangumiItem.renewalTime?.isNotEmpty == true)
+                        PBadge(
+                          text: bangumiItem.renewalTime,
+                          bottom: 6,
+                          left: 6,
+                          type: 'gray',
+                        )
+                      else if (bangumiItem.order != null)
                         PBadge(
                           text: bangumiItem.order,
                           top: null,

@@ -42,7 +42,7 @@ class PBadge extends StatelessWidget {
     // 边框色
     Color borderColor = Colors.transparent;
     if (type == 'gray') {
-      bgColor = Colors.black54.withOpacity(0.4);
+      bgColor = Colors.black54.withOpacity(0.45);
       color = Colors.white;
     } else if (type == 'color') {
       bgColor = t.secondaryContainer.withOpacity(0.5);
