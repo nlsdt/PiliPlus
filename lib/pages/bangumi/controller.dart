@@ -1,5 +1,6 @@
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/bangumi/list.dart';
+import 'package:PiliPlus/models/bangumi/pgc_timeline/result.dart';
 import 'package:PiliPlus/models/common/tab_type.dart';
 import 'package:PiliPlus/pages/common/common_list_controller.dart';
 import 'package:PiliPlus/utils/extension.dart';
@@ -15,6 +16,8 @@ class BangumiController extends CommonListController<
 
   RxBool isLogin = false.obs;
   int? mid;
+  late final showPgcTimeline =
+      tabType == TabType.bangumi && GStorage.showPgcTimeline;
 
   @override
   void onInit() {
@@ -24,6 +27,9 @@ class BangumiController extends CommonListController<
 
     queryData();
     queryBangumiFollow();
+    if (showPgcTimeline) {
+      queryPgcTimeline();
+    }
     if (isLogin.value) {
       followController = ScrollController();
     }
@@ -36,15 +42,29 @@ class BangumiController extends CommonListController<
       followEnd = false;
     }
     queryBangumiFollow();
+    if (showPgcTimeline) {
+      queryPgcTimeline();
+    }
     return super.onRefresh();
   }
 
+  // follow
   late int followPage = 1;
   late RxInt followCount = (-1).obs;
   late bool followLoading = false;
   late bool followEnd = false;
-  late Rx<LoadingState> followState = LoadingState.loading().obs;
+  late Rx<LoadingState<List<BangumiListItemModel>?>> followState =
+      LoadingState<List<BangumiListItemModel>?>.loading().obs;
   ScrollController? followController;
+
+  // timeline
+  late Rx<LoadingState<List<Result>?>> timelineState =
+      LoadingState<List<Result>?>.loading().obs;
+
+  Future queryPgcTimeline() async {
+    final res = await BangumiHttp.pgcTimeline(types: 1, before: 6, after: 6);
+    timelineState.value = res;
+  }
 
   // 我的订阅
   Future queryBangumiFollow([bool isRefresh = true]) async {

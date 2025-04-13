@@ -1,4 +1,6 @@
 import 'package:PiliPlus/http/loading_state.dart';
+import 'package:PiliPlus/models/bangumi/pgc_timeline/pgc_timeline.dart';
+import 'package:PiliPlus/models/bangumi/pgc_timeline/result.dart';
 
 import '../models/bangumi/list.dart';
 import '../models/bangumi/pgc_index/condition.dart';
@@ -82,6 +84,26 @@ class BangumiHttp {
     if (res.data['code'] == 0) {
       return LoadingState.success(
           BangumiListDataModel.fromJson(res.data['data']));
+    } else {
+      return LoadingState.error(res.data['message']);
+    }
+  }
+
+  static Future<LoadingState<List<Result>?>> pgcTimeline({
+    int types = 1, // 1：`番剧`<br />3：`电影`<br />4：`国创` |
+    required int before,
+    required int after,
+  }) async {
+    var res = await Request().get(
+      Api.pgcTimeline,
+      queryParameters: {
+        'types': types,
+        'before': before,
+        'after': after,
+      },
+    );
+    if (res.data['code'] == 0) {
+      return LoadingState.success(PgcTimeline.fromJson(res.data).result);
     } else {
       return LoadingState.error(res.data['message']);
     }

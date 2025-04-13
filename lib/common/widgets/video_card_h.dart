@@ -141,11 +141,7 @@ class VideoCardH extends StatelessWidget {
                                 width: maxWidth,
                                 height: maxHeight,
                               ),
-                              if (videoItem is HotVideoItemModel &&
-                                  (videoItem as HotVideoItemModel)
-                                          .pgcLabel
-                                          ?.isNotEmpty ==
-                                      true)
+                              if (videoItem is HotVideoItemModel)
                                 PBadge(
                                   text:
                                       (videoItem as HotVideoItemModel).pgcLabel,

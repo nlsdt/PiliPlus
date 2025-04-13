@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/widgets/image_save.dart';
+import 'package:PiliPlus/models/bangumi/pgc_timeline/episode.dart';
 import 'package:flutter/material.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
@@ -6,13 +7,13 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:PiliPlus/common/widgets/network_img_layer.dart';
 
 // 视频卡片 - 垂直布局
-class BangumiCardVPgcIndex extends StatelessWidget {
-  const BangumiCardVPgcIndex({
+class BangumiCardVTimeline extends StatelessWidget {
+  const BangumiCardVTimeline({
     super.key,
-    required this.bangumiItem,
+    required this.item,
   });
 
-  final dynamic bangumiItem;
+  final Episode item;
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +23,14 @@ class BangumiCardVPgcIndex extends StatelessWidget {
       child: InkWell(
         onLongPress: () => imageSaveDialog(
           context: context,
-          title: bangumiItem['title'],
-          cover: bangumiItem['cover'],
+          title: item.title,
+          cover: item.cover,
         ),
-        onTap: () {
-          Utils.viewBangumi(seasonId: bangumiItem['season_id']);
+        onTap: () async {
+          Utils.viewBangumi(
+            seasonId: item.seasonId,
+            epId: item.episodeId,
+          );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,23 +45,20 @@ class BangumiCardVPgcIndex extends StatelessWidget {
                   return Stack(
                     children: [
                       NetworkImgLayer(
-                        src: bangumiItem['cover'],
+                        src: item.cover,
                         width: maxWidth,
                         height: maxHeight,
                       ),
+                      if (item.follow == 1)
+                        PBadge(
+                          text: '已追番',
+                          right: 6,
+                          top: 6,
+                        ),
                       PBadge(
-                        text: bangumiItem['badge'],
-                        top: 6,
-                        right: 6,
-                        bottom: null,
-                        left: null,
-                      ),
-                      PBadge(
-                        text: bangumiItem['order'],
-                        top: null,
-                        right: null,
-                        bottom: 6,
+                        text: '${item.pubTime}',
                         left: 6,
+                        bottom: 6,
                         type: 'gray',
                       ),
                     ],
@@ -75,16 +76,12 @@ class BangumiCardVPgcIndex extends StatelessWidget {
   Widget bagumiContent(context) {
     return Expanded(
       child: Padding(
-        // 多列
         padding: const EdgeInsets.fromLTRB(4, 5, 0, 3),
-        // 单列
-        // padding: const EdgeInsets.fromLTRB(14, 10, 4, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              bangumiItem['title'],
+              item.title ?? '',
               textAlign: TextAlign.start,
               style: const TextStyle(
                 letterSpacing: 0.3,
@@ -92,25 +89,14 @@ class BangumiCardVPgcIndex extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 1),
-            if (bangumiItem['index_show'] != null)
-              Text(
-                bangumiItem['index_show'],
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
+            Text(
+              item.pubIndex ?? '',
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
+                color: Theme.of(context).colorScheme.outline,
               ),
-            // if (bangumiItem.progress != null)
-            //   Text(
-            //     bangumiItem.progress,
-            //     maxLines: 1,
-            //     style: TextStyle(
-            //       fontSize: Theme.of(context).textTheme.labelMedium!.fontSize,
-            //       color: Theme.of(context).colorScheme.outline,
-            //     ),
-            //   ),
+            ),
           ],
         ),
       ),

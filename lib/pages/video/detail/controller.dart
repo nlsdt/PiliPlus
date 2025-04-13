@@ -952,6 +952,7 @@ class VideoDetailController extends GetxController
     }
   }
 
+  ({int mode, int fontsize, Color color})? dmConfig;
   String? savedDanmaku;
 
   /// 发送弹幕
@@ -975,6 +976,8 @@ class VideoDetailController extends GetxController
               plPlayerController.danmakuController?.addDanmaku(danmakuModel);
             },
             darkVideoPage: plPlayerController.darkVideoPage,
+            dmConfig: dmConfig,
+            onSaveDmConfig: (dmConfig) => this.dmConfig = dmConfig,
           );
         },
         transitionDuration: const Duration(milliseconds: 500),

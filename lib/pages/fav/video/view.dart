@@ -98,10 +98,6 @@ class _FavVideoPageState extends State<FavVideoPage>
                                   .response;
                           list.removeAt(index);
                           _favController.loadingState.refresh();
-                        } else {
-                          Future.delayed(const Duration(milliseconds: 255), () {
-                            _favController.onRefresh();
-                          });
                         }
                       },
                     );

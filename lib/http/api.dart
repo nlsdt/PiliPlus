@@ -757,4 +757,9 @@ class Api {
   static const String replyTop = '/x/v2/reply/top';
 
   static const String getCoin = '${HttpString.accountBaseUrl}/site/getCoin';
+
+  static const String getLiveEmoticons =
+      '${HttpString.liveBaseUrl}/xlive/web-ucenter/v2/emoticon/GetEmoticons';
+
+  static const String pgcTimeline = '/pgc/web/timeline';
 }

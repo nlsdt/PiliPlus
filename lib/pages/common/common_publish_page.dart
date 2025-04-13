@@ -7,6 +7,7 @@ import 'package:PiliPlus/common/widgets/icon_button.dart';
 import 'package:PiliPlus/common/widgets/interactiveviewer_gallery/interactiveviewer_gallery.dart'
     show SourceModel, SourceType;
 import 'package:PiliPlus/http/msg.dart';
+import 'package:PiliPlus/models/live/live_emoticons/emoticon.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:chat_bottom_container/chat_bottom_container.dart';
 import 'package:dio/dio.dart';
@@ -197,18 +198,29 @@ abstract class CommonPublishPageState<T extends CommonPublishPage>
 
   Future onCustomPublish({required String message, List? pictures});
 
-  void onChooseEmote(Packages package, Emote emote) {
+  void onChooseEmote(emote) {
     enablePublish.value = true;
     final int cursorPosition = editController.selection.baseOffset;
     final String currentText = editController.text;
-    final String newText = currentText.substring(0, cursorPosition) +
-        emote.text! +
-        currentText.substring(cursorPosition);
-    editController.value = TextEditingValue(
-      text: newText,
-      selection:
-          TextSelection.collapsed(offset: cursorPosition + emote.text!.length),
-    );
+    if (emote is Emote) {
+      final String newText = currentText.substring(0, cursorPosition) +
+          emote.text! +
+          currentText.substring(cursorPosition);
+      editController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+            offset: cursorPosition + emote.text!.length),
+      );
+    } else if (emote is LiveEmoticon) {
+      final String newText = currentText.substring(0, cursorPosition) +
+          emote.emoji! +
+          currentText.substring(cursorPosition);
+      editController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+            offset: cursorPosition + emote.emoji!.length),
+      );
+    }
     widget.onSave?.call(editController.text);
   }
 

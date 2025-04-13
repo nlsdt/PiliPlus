@@ -31,6 +31,7 @@ class BangumiCardVMemberHome extends StatelessWidget {
           cover: bangumiItem.cover,
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.only(
@@ -94,19 +95,14 @@ Widget bangumiContent(Item bangumiItem) {
         crossAxisAlignment: CrossAxisAlignment.start,
         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Expanded(
-                  child: Text(
-                bangumiItem.title,
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                  letterSpacing: 0.3,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              )),
-            ],
+          Text(
+            bangumiItem.title,
+            textAlign: TextAlign.start,
+            style: const TextStyle(
+              letterSpacing: 0.3,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 1),
           // if (bangumiItem.indexShow != null)

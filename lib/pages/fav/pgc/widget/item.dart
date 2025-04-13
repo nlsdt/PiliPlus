@@ -65,17 +65,16 @@ class FavPgcItem extends StatelessWidget {
                               width: boxConstraints.maxWidth,
                               height: boxConstraints.maxHeight,
                             ),
-                            if (item.badge?.isNotEmpty == true)
-                              PBadge(
-                                right: 4,
-                                top: 4,
-                                text: item.badge,
-                                fs: 10,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 1,
-                                ),
+                            PBadge(
+                              right: 4,
+                              top: 4,
+                              text: item.badge,
+                              fs: 10,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 1,
                               ),
+                            ),
                             Positioned.fill(
                               child: IgnorePointer(
                                 child: LayoutBuilder(
@@ -146,10 +145,12 @@ class FavPgcItem extends StatelessWidget {
                         if (item.newEp?['index_show'] != null) ...[
                           const SizedBox(height: 6),
                           Text(
-                            '${item.newEp?['index_show']}',
+                            '${item.newEp?['index_show']}${item.isFinish == 0 && item.renewalTime?.isNotEmpty == true ? '，${item.renewalTime}' : ''}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.outline,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -161,7 +162,9 @@ class FavPgcItem extends StatelessWidget {
                             item.progress!,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context).colorScheme.outline,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                         ],

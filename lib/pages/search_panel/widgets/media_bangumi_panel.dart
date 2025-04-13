@@ -60,14 +60,13 @@ Widget searchBangumiPanel(
                                     height: 148,
                                     src: i.cover,
                                   ),
-                                  if (i.seasonTypeName?.isNotEmpty == true)
-                                    PBadge(
-                                      text: i.seasonTypeName,
-                                      top: 6.0,
-                                      right: 4.0,
-                                      bottom: null,
-                                      left: null,
-                                    )
+                                  PBadge(
+                                    text: i.seasonTypeName,
+                                    top: 6.0,
+                                    right: 4.0,
+                                    bottom: null,
+                                    left: null,
+                                  )
                                 ],
                               ),
                               const SizedBox(width: 10),

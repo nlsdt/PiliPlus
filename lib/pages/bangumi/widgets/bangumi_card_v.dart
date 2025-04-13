@@ -31,6 +31,7 @@ class BangumiCardV extends StatelessWidget {
           Utils.viewBangumi(seasonId: seasonId);
         },
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: StyleString.mdRadius,
@@ -49,14 +50,13 @@ class BangumiCardV extends StatelessWidget {
                           height: maxHeight,
                         ),
                       ),
-                      if (bangumiItem.badge != null)
-                        PBadge(
-                          text: bangumiItem.badge,
-                          top: 6,
-                          right: 6,
-                          bottom: null,
-                          left: null,
-                        ),
+                      PBadge(
+                        text: bangumiItem.badge,
+                        top: 6,
+                        right: 6,
+                        bottom: null,
+                        left: null,
+                      ),
                       if (bangumiItem.isFinish == 0 &&
                           bangumiItem.renewalTime?.isNotEmpty == true)
                         PBadge(
@@ -97,19 +97,14 @@ class BangumiCardV extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Expanded(
-                    child: Text(
-                  bangumiItem.title,
-                  textAlign: TextAlign.start,
-                  style: const TextStyle(
-                    letterSpacing: 0.3,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )),
-              ],
+            Text(
+              bangumiItem.title,
+              textAlign: TextAlign.start,
+              style: const TextStyle(
+                letterSpacing: 0.3,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 1),
             if (bangumiItem.indexShow != null)

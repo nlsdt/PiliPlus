@@ -123,14 +123,13 @@ class FavVideoCardH extends StatelessWidget {
                               bottom: 6.0,
                               type: 'gray',
                             ),
-                            if (videoItem.ogv != null)
-                              PBadge(
-                                text: videoItem.ogv!['type_name'],
-                                top: 6.0,
-                                right: 6.0,
-                                bottom: null,
-                                left: null,
-                              ),
+                            PBadge(
+                              text: videoItem.ogv?['type_name'],
+                              top: 6.0,
+                              right: 6.0,
+                              bottom: null,
+                              left: null,
+                            ),
                           ],
                         );
                       },

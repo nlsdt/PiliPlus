@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/icon_button.dart';
 import 'package:PiliPlus/http/danmaku.dart';
-import 'package:PiliPlus/http/live.dart';
 import 'package:PiliPlus/main.dart';
 import 'package:PiliPlus/pages/common/common_publish_page.dart';
 import 'package:PiliPlus/pages/setting/slide_color_picker.dart';
@@ -19,11 +18,12 @@ class SendDanmakuPanel extends CommonPublishPage {
   final dynamic bvid;
   final dynamic progress;
 
-  // live
-  final dynamic roomId;
-
   final ValueChanged<DanmakuContentItem> callback;
   final bool darkVideoPage;
+
+  // config
+  final ({int? mode, int? fontsize, Color? color})? dmConfig;
+  final ValueChanged<({int mode, int fontsize, Color color})>? onSaveDmConfig;
 
   const SendDanmakuPanel({
     super.key,
@@ -32,9 +32,10 @@ class SendDanmakuPanel extends CommonPublishPage {
     this.cid,
     this.bvid,
     this.progress,
-    this.roomId,
     required this.callback,
     required this.darkVideoPage,
+    this.dmConfig,
+    this.onSaveDmConfig,
   });
 
   @override
@@ -42,9 +43,9 @@ class SendDanmakuPanel extends CommonPublishPage {
 }
 
 class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
-  final RxInt _mode = 1.obs;
-  final RxInt _fontsize = 25.obs;
-  final Rx<Color> _color = Colors.white.obs;
+  late final RxInt _mode;
+  late final RxInt _fontsize;
+  late final Rx<Color> _color;
 
   final List<Color> _colorList = [
     Colors.white,
@@ -63,20 +64,35 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
     Color(0xFF9B9B9B),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _mode = (widget.dmConfig?.mode ?? 1).obs;
+    _fontsize = (widget.dmConfig?.fontsize ?? 25).obs;
+    _color = (widget.dmConfig?.color ?? Colors.white).obs;
+  }
+
+  @override
+  void dispose() {
+    widget.onSaveDmConfig?.call(
+        (mode: _mode.value, fontsize: _fontsize.value, color: _color.value));
+    super.dispose();
+  }
+
   get _buildColorPanel => Expanded(
         child: Obx(
-          () => LayoutBuilder(
+          () => Builder(
             key: ValueKey(_color.value),
-            builder: (context, constraints) {
-              final int crossAxisCount = (constraints.maxWidth / 40).toInt();
+            builder: (context) {
               final bool isCustomColor = _colorList.contains(_color.value).not;
               final int length =
                   _colorList.length + (isCustomColor ? 1 : 0) + 1;
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 40,
+                  mainAxisExtent: 40,
                   crossAxisSpacing: 4,
                   mainAxisSpacing: 4,
                 ),
@@ -320,28 +336,27 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
       ),
       child: Row(
         children: [
-          if (widget.roomId == null)
-            Obx(
-              () => iconButton(
-                context: context,
-                tooltip: '弹幕样式',
-                onPressed: () {
-                  if (selectKeyboard.value) {
-                    selectKeyboard.value = false;
-                    updatePanelType(PanelType.emoji);
-                  } else {
-                    selectKeyboard.value = true;
-                    updatePanelType(PanelType.keyboard);
-                  }
-                },
-                bgColor: Colors.transparent,
-                iconSize: 24,
-                icon: Icons.text_format,
-                iconColor: selectKeyboard.value.not
-                    ? themeData.colorScheme.primary
-                    : themeData.colorScheme.onSurfaceVariant,
-              ),
+          Obx(
+            () => iconButton(
+              context: context,
+              tooltip: '弹幕样式',
+              onPressed: () {
+                if (selectKeyboard.value) {
+                  selectKeyboard.value = false;
+                  updatePanelType(PanelType.emoji);
+                } else {
+                  selectKeyboard.value = true;
+                  updatePanelType(PanelType.keyboard);
+                }
+              },
+              bgColor: Colors.transparent,
+              iconSize: 24,
+              icon: Icons.text_format,
+              iconColor: selectKeyboard.value.not
+                  ? themeData.colorScheme.primary
+                  : themeData.colorScheme.onSurfaceVariant,
             ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Form(
@@ -449,20 +464,15 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
   @override
   Future onCustomPublish({required String message, List? pictures}) async {
     SmartDialog.showLoading(msg: '发送中...');
-    final res = widget.roomId != null
-        ? await LiveHttp.sendLiveMsg(
-            roomId: widget.roomId,
-            msg: editController.text,
-          )
-        : await DanmakuHttp.shootDanmaku(
-            oid: widget.cid,
-            bvid: widget.bvid,
-            progress: widget.progress,
-            msg: editController.text,
-            mode: _mode.value,
-            fontsize: _fontsize.value,
-            color: _color.value.value & 0xFFFFFF,
-          );
+    final res = await DanmakuHttp.shootDanmaku(
+      oid: widget.cid,
+      bvid: widget.bvid,
+      progress: widget.progress,
+      msg: editController.text,
+      mode: _mode.value,
+      fontsize: _fontsize.value,
+      color: _color.value.value & 0xFFFFFF,
+    );
     SmartDialog.dismiss();
     if (res['status']) {
       Get.back();

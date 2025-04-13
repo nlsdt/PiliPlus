@@ -2,6 +2,8 @@ import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/live/danmu_info.dart';
 import 'package:PiliPlus/models/live/follow.dart';
+import 'package:PiliPlus/models/live/live_emoticons/data.dart';
+import 'package:PiliPlus/models/live/live_emoticons/datum.dart';
 import 'package:dio/dio.dart';
 import '../models/live/item.dart';
 import '../models/live/room_info.dart';
@@ -24,35 +26,34 @@ class LiveHttp {
     }
   }
 
-  static Future sendLiveMsg({
-    roomId,
-    msg,
-  }) async {
+  static Future sendLiveMsg({roomId, msg, dmType, emoticonOptions}) async {
     dynamic csrf = await Request.getCsrf();
     var res = await Request().post(
       Api.sendLiveMsg,
-      data: {
+      data: FormData.fromMap({
         'bubble': 0,
         'msg': msg,
         'color': 16777215,
         'mode': 1,
-        'room_type': 0,
-        'jumpfrom': 71000,
-        'reply_mid': 0,
-        'reply_attr': 0,
-        'replay_dmid': '',
-        'statistics': Constants.statistics,
-        'reply_type': 0,
-        'reply_uname': '',
+        if (dmType != null) 'dm_type': dmType,
+        if (emoticonOptions != null)
+          'emoticonOptions': emoticonOptions
+        else ...{
+          'room_type': 0,
+          'jumpfrom': 0,
+          'reply_mid': 0,
+          'reply_attr': 0,
+          'replay_dmid': '',
+          'statistics': Constants.statistics,
+          'reply_type': 0,
+          'reply_uname': '',
+        },
         'fontsize': 25,
         'rnd': DateTime.now().millisecondsSinceEpoch ~/ 1000,
         'roomid': roomId,
         'csrf': csrf,
         'csrf_token': csrf,
-      },
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-      ),
+      }),
     );
     if (res.data['code'] == 0) {
       return {
@@ -144,6 +145,23 @@ class LiveHttp {
         'status': false,
         'msg': res.data['message'],
       };
+    }
+  }
+
+  static Future<LoadingState<List<LiveEmoteDatum>?>> getLiveEmoticons(
+      {required int roomId}) async {
+    var res = await Request().get(
+      Api.getLiveEmoticons,
+      queryParameters: {
+        'platform': 'pc',
+        'room_id': roomId,
+      },
+    );
+    if (res.data['code'] == 0) {
+      return LoadingState.success(
+          LiveEmoteData.fromJson(res.data['data']).data);
+    } else {
+      return LoadingState.error(res.data['message']);
     }
   }
 }

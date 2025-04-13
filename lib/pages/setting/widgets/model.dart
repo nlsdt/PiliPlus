@@ -2160,6 +2160,14 @@ List<SettingsModel> get extraSettings => [
       ),
       SettingsModel(
         settingsType: SettingsType.sw1tch,
+        title: '展示追番时间表',
+        leading: Icon(MdiIcons.chartTimelineVariantShimmer),
+        setKey: SettingBoxKey.showPgcTimeline,
+        defaultVal: true,
+        needReboot: true,
+      ),
+      SettingsModel(
+        settingsType: SettingsType.sw1tch,
         enableFeedback: true,
         setKey: SettingBoxKey.feedBackEnable,
         onChanged: (value) {

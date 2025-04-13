@@ -468,6 +468,9 @@ class GStorage {
   static String get webdavDirectory =>
       GStorage.setting.get(SettingBoxKey.webdavDirectory, defaultValue: '/');
 
+  static bool get showPgcTimeline =>
+      GStorage.setting.get(SettingBoxKey.showPgcTimeline, defaultValue: true);
+
   static List<double> get dynamicDetailRatio => List<double>.from(setting
       .get(SettingBoxKey.dynamicDetailRatio, defaultValue: [60.0, 40.0]));
 
@@ -755,6 +758,7 @@ class SettingBoxKey {
       fastForBackwardDuration = 'fastForBackwardDuration',
       recordSearchHistory = 'recordSearchHistory',
       navSearchStreamDebounce = 'navSearchStreamDebounce',
+      showPgcTimeline = 'showPgcTimeline',
 
       // WebDAV
       webdavUri = 'webdavUri',

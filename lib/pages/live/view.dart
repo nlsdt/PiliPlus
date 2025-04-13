@@ -186,67 +186,71 @@ class _LivePageState extends CommonPageState<LivePage, LiveController>
           child: loadingWidget,
         ),
       Success() => (loadingState.response as List?)?.isNotEmpty == true
-          ? SelfSizedHorizontalList(
-              gapSize: 5,
-              childBuilder: (index) {
-                if (index == loadingState.response.length - 1) {
-                  controller.fetchLiveFollowing(false);
-                }
-                return SizedBox(
-                  width: 65,
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.toNamed(
-                        '/liveRoom?roomid=${loadingState.response[index].roomId}',
-                      );
-                    },
-                    onLongPress: () {
-                      Feedback.forLongPress(context);
-                      Get.toNamed(
-                        '/member?mid=${loadingState.response[index].uid}',
-                        arguments: {
-                          'face': loadingState.response[index].face,
-                          'heroTag': Utils.makeHeroTag(
-                              loadingState.response[index].uid)
-                        },
-                      );
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 8),
-                        Container(
-                          margin: const EdgeInsets.all(2),
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1.5,
-                              color: Theme.of(context).colorScheme.primary,
-                              strokeAlign: BorderSide.strokeAlignOutside,
+          ? MediaQuery.removePadding(
+              context: context,
+              removeLeft: context.orientation == Orientation.landscape,
+              child: SelfSizedHorizontalList(
+                gapSize: 5,
+                childBuilder: (index) {
+                  if (index == loadingState.response.length - 1) {
+                    controller.fetchLiveFollowing(false);
+                  }
+                  return SizedBox(
+                    width: 65,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          '/liveRoom?roomid=${loadingState.response[index].roomId}',
+                        );
+                      },
+                      onLongPress: () {
+                        Feedback.forLongPress(context);
+                        Get.toNamed(
+                          '/member?mid=${loadingState.response[index].uid}',
+                          arguments: {
+                            'face': loadingState.response[index].face,
+                            'heroTag': Utils.makeHeroTag(
+                                loadingState.response[index].uid)
+                          },
+                        );
+                      },
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 8),
+                          Container(
+                            margin: const EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1.5,
+                                color: Theme.of(context).colorScheme.primary,
+                                strokeAlign: BorderSide.strokeAlignOutside,
+                              ),
+                              shape: BoxShape.circle,
                             ),
-                            shape: BoxShape.circle,
+                            child: NetworkImgLayer(
+                              type: 'avatar',
+                              width: 45,
+                              height: 45,
+                              src: loadingState.response[index].face,
+                            ),
                           ),
-                          child: NetworkImgLayer(
-                            type: 'avatar',
-                            width: 45,
-                            height: 45,
-                            src: loadingState.response[index].face,
+                          const SizedBox(height: 4),
+                          Text(
+                            loadingState.response[index].uname,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          loadingState.response[index].uname,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 11),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-              itemCount: loadingState.response.length,
+                  );
+                },
+                itemCount: loadingState.response.length,
+              ),
             )
           : const SizedBox.shrink(),
       Error() => GestureDetector(

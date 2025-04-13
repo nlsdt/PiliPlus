@@ -516,15 +516,12 @@ Widget forWard(bool isSave, item, BuildContext context, source, callback,
                       src: item.modules.moduleDynamic.major.medialist['cover'],
                     ),
                   ),
-                  if (item.modules.moduleDynamic.major.medialist['badge']
-                          ?['text'] !=
-                      null)
-                    PBadge(
-                      right: 6,
-                      top: 6,
-                      text: item.modules.moduleDynamic.major.medialist['badge']
-                          ['text'],
-                    )
+                  PBadge(
+                    right: 6,
+                    top: 6,
+                    text: item.modules.moduleDynamic.major.medialist['badge']
+                        ?['text'],
+                  )
                 ],
               ),
               const SizedBox(width: 14),

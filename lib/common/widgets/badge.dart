@@ -1,3 +1,4 @@
+import 'package:PiliPlus/utils/extension.dart';
 import 'package:flutter/material.dart';
 
 class PBadge extends StatelessWidget {
@@ -17,7 +18,7 @@ class PBadge extends StatelessWidget {
 
   const PBadge({
     super.key,
-    this.text,
+    required this.text,
     this.top,
     this.right,
     this.bottom,
@@ -34,15 +35,19 @@ class PBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (text.isNullOrEmpty) {
+      return const SizedBox.shrink();
+    }
+
     ColorScheme t = Theme.of(context).colorScheme;
     // 背景色
     Color bgColor = t.primary;
     // 前景色
     Color color = t.onPrimary;
     // 边框色
-    Color borderColor = Colors.transparent;
+    Color? borderColor;
     if (type == 'gray') {
-      bgColor = Colors.black54.withOpacity(0.45);
+      bgColor = Colors.black45;
       color = Colors.white;
     } else if (type == 'color') {
       bgColor = t.secondaryContainer.withOpacity(0.5);
@@ -72,10 +77,10 @@ class PBadge extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: br,
         color: bgColor,
-        border: Border.all(color: borderColor),
+        border: borderColor != null ? Border.all(color: borderColor) : null,
       ),
       child: Text(
-        text ?? "",
+        text!,
         textScaler: textScaleFactor != null
             ? TextScaler.linear(textScaleFactor!)
             : null,

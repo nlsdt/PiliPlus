@@ -4,7 +4,6 @@ import 'package:PiliPlus/http/video.dart';
 import 'package:PiliPlus/models/live/danmu_info.dart';
 import 'package:PiliPlus/models/live/quality.dart';
 import 'package:PiliPlus/pages/mine/controller.dart';
-import 'package:PiliPlus/pages/video/detail/widgets/send_danmaku_panel.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/tcp/live.dart';
 import 'package:PiliPlus/utils/danmaku.dart';
@@ -13,13 +12,11 @@ import 'package:canvas_danmaku/canvas_danmaku.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:PiliPlus/http/constants.dart';
 import 'package:PiliPlus/http/live.dart';
 import 'package:PiliPlus/models/live/room_info.dart';
 import 'package:PiliPlus/plugin/pl_player/index.dart';
-import 'package:get/get_navigation/src/dialog/dialog_route.dart';
 import '../../models/live/room_info_h5.dart';
 import '../../utils/video_utils.dart';
 
@@ -247,42 +244,5 @@ class LiveRoomController extends GetxController {
         .firstWhere((element) => element.code == currentQn)
         .description;
     await queryLiveInfo();
-  }
-
-  void onSendDanmaku() {
-    if (!isLogin) {
-      SmartDialog.showToast('未登录');
-      return;
-    }
-    Navigator.of(Get.context!).push(
-      GetDialogRoute(
-        pageBuilder: (buildContext, animation, secondaryAnimation) {
-          return SendDanmakuPanel(
-            roomId: roomId,
-            initialValue: savedDanmaku,
-            onSave: (danmaku) => savedDanmaku = danmaku,
-            callback: (danmakuModel) {
-              savedDanmaku = null;
-              plPlayerController.danmakuController?.addDanmaku(danmakuModel);
-            },
-            darkVideoPage: false,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 500),
-        transitionBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.linear;
-
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      ),
-    );
   }
 }

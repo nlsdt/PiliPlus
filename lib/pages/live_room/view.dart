@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:PiliPlus/http/live.dart';
+import 'package:PiliPlus/pages/live_room/send_dm_panel.dart';
 import 'package:PiliPlus/pages/live_room/widgets/chat.dart';
 import 'package:PiliPlus/pages/live_room/widgets/header_control.dart';
 import 'package:PiliPlus/services/service_locator.dart';
@@ -13,7 +13,6 @@ import 'package:canvas_danmaku/canvas_danmaku.dart';
 import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:PiliPlus/common/widgets/network_img_layer.dart';
 import 'package:PiliPlus/plugin/pl_player/index.dart';
@@ -44,8 +43,6 @@ class _LiveRoomPageState extends State<LiveRoomPage>
   bool isPlay = true;
   Floating? floating;
 
-  late final _node = FocusNode();
-  late final _ctr = TextEditingController();
   StreamSubscription? _listener;
 
   int latestAddedPosition = -1;
@@ -128,10 +125,8 @@ class _LiveRoomPageState extends State<LiveRoomPage>
     PlPlayerController.setPlayCallBack(null);
     _liveRoomController.msgStream?.close();
     // floating?.dispose();
-    _node.dispose();
     plPlayerController.removeStatusLister(playerListener);
     plPlayerController.dispose();
-    _ctr.dispose();
     super.dispose();
   }
 
@@ -157,66 +152,60 @@ class _LiveRoomPageState extends State<LiveRoomPage>
           plPlayerController.triggerFullScreen(status: false);
         }
       },
-      child: Listener(
-        onPointerDown: (_) {
-          _node.unfocus();
-        },
-        child: FutureBuilder(
-          key: videoPlayerKey,
-          future: _futureBuilderFuture,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.hasData && snapshot.data['status']) {
-              return PLVideoPlayer(
-                key: playerKey,
-                fill: fill,
-                alignment: alignment,
+      child: FutureBuilder(
+        key: videoPlayerKey,
+        future: _futureBuilderFuture,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData && snapshot.data['status']) {
+            return PLVideoPlayer(
+              key: playerKey,
+              fill: fill,
+              alignment: alignment,
+              plPlayerController: plPlayerController,
+              headerControl: LiveHeaderControl(
                 plPlayerController: plPlayerController,
-                headerControl: LiveHeaderControl(
-                  plPlayerController: plPlayerController,
-                  floating: floating,
-                  onSendDanmaku: _liveRoomController.onSendDanmaku,
-                ),
-                bottomControl: BottomControl(
-                  plPlayerController: plPlayerController,
-                  liveRoomCtr: _liveRoomController,
-                  onRefresh: () {
-                    _futureBuilderFuture = _liveRoomController.queryLiveInfo();
-                  },
-                ),
-                danmuWidget: Obx(
-                  () => AnimatedOpacity(
-                    opacity: plPlayerController.isOpenDanmu.value ? 1 : 0,
-                    duration: const Duration(milliseconds: 100),
-                    child: DanmakuScreen(
-                      createdController: (DanmakuController e) {
-                        plPlayerController.danmakuController =
-                            _liveRoomController.controller = e;
-                      },
-                      option: DanmakuOption(
-                        fontSize: _getFontSize(isFullScreen),
-                        fontWeight: plPlayerController.fontWeight,
-                        area: plPlayerController.showArea,
-                        opacity: plPlayerController.opacity,
-                        hideTop: plPlayerController.blockTypes.contains(5),
-                        hideScroll: plPlayerController.blockTypes.contains(2),
-                        hideBottom: plPlayerController.blockTypes.contains(4),
-                        duration: plPlayerController.danmakuDuration /
-                            plPlayerController.playbackSpeed,
-                        staticDuration:
-                            plPlayerController.danmakuStaticDuration /
-                                plPlayerController.playbackSpeed,
-                        strokeWidth: plPlayerController.strokeWidth,
-                        lineHeight: plPlayerController.danmakuLineHeight,
-                      ),
+                floating: floating,
+                onSendDanmaku: onSendDanmaku,
+              ),
+              bottomControl: BottomControl(
+                plPlayerController: plPlayerController,
+                liveRoomCtr: _liveRoomController,
+                onRefresh: () {
+                  _futureBuilderFuture = _liveRoomController.queryLiveInfo();
+                },
+              ),
+              danmuWidget: Obx(
+                () => AnimatedOpacity(
+                  opacity: plPlayerController.isOpenDanmu.value ? 1 : 0,
+                  duration: const Duration(milliseconds: 100),
+                  child: DanmakuScreen(
+                    createdController: (DanmakuController e) {
+                      plPlayerController.danmakuController =
+                          _liveRoomController.controller = e;
+                    },
+                    option: DanmakuOption(
+                      fontSize: _getFontSize(isFullScreen),
+                      fontWeight: plPlayerController.fontWeight,
+                      area: plPlayerController.showArea,
+                      opacity: plPlayerController.opacity,
+                      hideTop: plPlayerController.blockTypes.contains(5),
+                      hideScroll: plPlayerController.blockTypes.contains(2),
+                      hideBottom: plPlayerController.blockTypes.contains(4),
+                      duration: plPlayerController.danmakuDuration /
+                          plPlayerController.playbackSpeed,
+                      staticDuration: plPlayerController.danmakuStaticDuration /
+                          plPlayerController.playbackSpeed,
+                      strokeWidth: plPlayerController.strokeWidth,
+                      lineHeight: plPlayerController.danmakuLineHeight,
                     ),
                   ),
                 ),
-              );
-            } else {
-              return const SizedBox();
-            }
-          },
-        ),
+              ),
+            );
+          } else {
+            return const SizedBox();
+          }
+        },
       ),
     );
   }
@@ -274,6 +263,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
   }
 
   Widget get _buildPH => Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: _buildAppBar,
         backgroundColor: Colors.transparent,
         body: Column(
@@ -282,6 +272,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
       );
 
   Widget get _buildPP => Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
@@ -361,7 +352,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
     );
   }
 
-  Color get _color => Color(0xFFEEEEEE);
+  final Color _color = Color(0xFFEEEEEE);
 
   PreferredSizeWidget get _buildAppBar => AppBar(
         backgroundColor: Colors.transparent,
@@ -381,7 +372,6 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _node.unfocus();
                         dynamic uid =
                             _liveRoomController.roomInfoH5.value.roomInfo?.uid;
                         Get.toNamed(
@@ -481,15 +471,12 @@ class _LiveRoomPageState extends State<LiveRoomPage>
             ),
           ),
           Expanded(
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: SafeArea(
-                left: false,
-                top: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _buildBottomWidget,
-                ),
+            child: SafeArea(
+              left: false,
+              top: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildBottomWidget,
               ),
             ),
           ),
@@ -517,18 +504,13 @@ class _LiveRoomPageState extends State<LiveRoomPage>
         _buildInputWidget,
       ];
 
-  Widget _buildChatWidget([bool? isPP]) => Listener(
-        onPointerDown: (_) {
-          _node.unfocus();
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: LiveRoomChat(
-            key: chatKey,
-            isPP: isPP,
-            roomId: _roomId,
-            liveRoomController: _liveRoomController,
-          ),
+  Widget _buildChatWidget([bool? isPP]) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: LiveRoomChat(
+          key: chatKey,
+          isPP: isPP,
+          roomId: _roomId,
+          liveRoomController: _liveRoomController,
         ),
       );
 
@@ -568,60 +550,45 @@ class _LiveRoomPageState extends State<LiveRoomPage>
               ),
             ),
             Expanded(
-              child: TextField(
-                focusNode: _node,
-                controller: _ctr,
-                textInputAction: TextInputAction.send,
-                cursorColor: _color,
-                style: TextStyle(color: _color),
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    _onSendMsg(value);
-                  }
-                },
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: '发送弹幕',
-                  hintStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                  ),
+              child: GestureDetector(
+                onTap: onSendDanmaku,
+                child: Text(
+                  '发送弹幕',
+                  style: TextStyle(color: _color),
                 ),
               ),
             ),
             IconButton(
               onPressed: () {
-                if (_ctr.text.isNotEmpty) {
-                  _onSendMsg(_ctr.text);
-                }
+                onSendDanmaku(true);
               },
-              icon: Icon(Icons.send, color: _color),
+              icon: Icon(Icons.emoji_emotions_outlined, color: _color),
             ),
           ],
         ),
       );
 
-  void _onSendMsg(msg) async {
-    if (!_liveRoomController.isLogin) {
-      SmartDialog.showToast('未登录');
-      return;
-    }
-    dynamic res = await LiveHttp.sendLiveMsg(
-        roomId: _liveRoomController.roomId, msg: msg);
-    if (res['status']) {
-      if (mounted) {
-        FocusScope.of(context).unfocus();
-      }
-      SmartDialog.showToast('发送成功');
-      plPlayerController.danmakuController?.addDanmaku(
-        DanmakuContentItem(
-          _ctr.text,
-          type: DanmakuItemType.scroll,
-          selfSend: true,
-        ),
-      );
-      _ctr.clear();
-    } else {
-      SmartDialog.showToast(res['msg']);
-    }
+  void onSendDanmaku([bool fromEmote = false]) {
+    Get.generalDialog(
+      barrierLabel: '',
+      barrierDismissible: true,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return LiveSendDmPanel(
+          fromEmote: fromEmote,
+          liveRoomController: _liveRoomController,
+          initialValue: _liveRoomController.savedDanmaku,
+          onSave: (msg) => _liveRoomController.savedDanmaku = msg,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 500),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        var tween = Tween(begin: Offset(0.0, 1.0), end: Offset.zero)
+            .chain(CurveTween(curve: Curves.linear));
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
   }
 }
