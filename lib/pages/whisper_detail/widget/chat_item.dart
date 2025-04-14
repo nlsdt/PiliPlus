@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:PiliPlus/common/widgets/interactiveviewer_gallery/interactiveviewer_gallery.dart';
 import 'package:PiliPlus/utils/extension.dart';
+import 'package:PiliPlus/utils/id_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:PiliPlus/common/widgets/network_img_layer.dart';
@@ -178,8 +179,17 @@ class ChatItem extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () async {
+                  dynamic aid = content['id'];
+                  if (aid is String) {
+                    aid = int.tryParse(aid);
+                  }
+                  dynamic bvid = content["bvid"];
+                  if (aid == null && bvid == null) {
+                    SmartDialog.showToast('null');
+                    return;
+                  }
+                  bvid ??= IdUtils.av2bv(aid);
                   SmartDialog.showLoading();
-                  var bvid = content["bvid"];
                   final int cid = await SearchHttp.ab2c(bvid: bvid);
                   SmartDialog.dismiss<dynamic>().then(
                     (e) => Utils.toViewPage(
