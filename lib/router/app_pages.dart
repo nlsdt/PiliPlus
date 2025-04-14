@@ -1,6 +1,7 @@
 import 'package:PiliPlus/pages/fav/view.dart';
 import 'package:PiliPlus/pages/member/new/member_page.dart';
 import 'package:PiliPlus/pages/member/new/widget/edit_profile_page.dart';
+import 'package:PiliPlus/pages/search_trending/view.dart';
 import 'package:PiliPlus/pages/setting/navigation_bar_set.dart';
 import 'package:PiliPlus/pages/setting/search_page.dart';
 import 'package:PiliPlus/pages/setting/sponsor_block_page.dart';
@@ -178,6 +179,8 @@ class Routes {
         name: '/settingsSearch', page: () => const SettingsSearchPage()),
     CustomGetPage(
         name: '/webdavSetting', page: () => const WebDavSettingPage()),
+    CustomGetPage(
+        name: '/searchTrending', page: () => const SearchTrendingPage()),
   ];
 }
 

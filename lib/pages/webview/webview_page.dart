@@ -196,20 +196,6 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
                 }
               },
             );
-            controller.addJavaScriptHandler(
-              handlerName: "onSearch",
-              callback: (args) {
-                dynamic title = args.firstOrNull;
-                if (title != null) {
-                  Get.toNamed(
-                    '/searchResult',
-                    parameters: {
-                      'keyword': title,
-                    },
-                  );
-                }
-              },
-            );
           },
           onProgressChanged: (controller, progress) {
             this.progress.value = progress / 100;
@@ -238,21 +224,6 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
                   document.styleSheets[0].insertRule('#app__display-area > div.control-panel {display:none;}', 0);
                   ''',
               );
-            } else if (url.startsWith(
-                'https://www.bilibili.com/blackboard/activity-trending-topic.html')) {
-              controller.evaluateJavascript(source: '''
-    document.addEventListener("click", function(e) {
-        const parentElement = e.target.parentElement;
-        if (parentElement) {
-            const trendingTitleElement = parentElement.querySelector(".trending-title");
-            if (trendingTitleElement) {
-                const rankElement = trendingTitleElement.querySelector(".rank-index");
-                const title = rankElement ? trendingTitleElement.innerText.replace(rankElement.innerText, "").trim() : trendingTitleElement.innerText;
-                window.flutter_inappwebview.callHandler("onSearch", title);
-            }
-        }
-    });
-''');
             }
             // _webViewController?.evaluateJavascript(
             //   source: '''
@@ -263,11 +234,6 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
           },
           onDownloadStartRequest: Platform.isAndroid
               ? (controller, request) {
-                  if (_url.startsWith(
-                      'https://www.bilibili.com/blackboard/activity-trending-topic.html')) {
-                    progress.value = 1;
-                    return;
-                  }
                   showDialog(
                       context: context,
                       builder: (context) {
@@ -340,9 +306,6 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
               return NavigationActionPolicy.CANCEL;
             } else if (RegExp(r'^(?!(https?://))\S+://', caseSensitive: false)
                 .hasMatch(url)) {
-              if (url.startsWith('bilibili://browser')) {
-                return NavigationActionPolicy.CANCEL;
-              }
               if (context.mounted) {
                 SnackBar snackBar = SnackBar(
                   content: const Text('当前网页将要打开外部链接，是否打开'),

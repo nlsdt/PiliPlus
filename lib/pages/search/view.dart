@@ -156,13 +156,7 @@ class _SearchPageState extends State<SearchPage> with RouteAware {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
-                    Get.toNamed(
-                      '/webview',
-                      parameters: {
-                        'url':
-                            'https://www.bilibili.com/blackboard/activity-trending-topic.html?navhide=1&native.theme=1&night=${Get.isDarkMode ? 1 : 0}'
-                      },
-                    );
+                    Get.toNamed('/searchTrending');
                   },
                   child: Padding(
                     padding:

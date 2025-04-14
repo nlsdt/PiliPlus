@@ -64,7 +64,7 @@ class _SearchResultPageState extends State<SearchResultPage>
         ),
         title: GestureDetector(
           onTap: () {
-            if (Get.previousRoute.startsWith('/search')) {
+            if (Get.previousRoute.startsWith('/search?')) {
               Get.back();
             } else {
               Get.offNamed(

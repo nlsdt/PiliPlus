@@ -1814,9 +1814,8 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                           () => CachedNetworkImage(
                             imageUrl:
                                 videoDetailController.videoItem['pic'] != null
-                                    ? (videoDetailController.videoItem['pic']
-                                            as String)
-                                        .http2https
+                                    ? Utils.thumbnailImgUrl(
+                                        videoDetailController.videoItem['pic'])
                                     : '',
                             width: videoWidth,
                             height: videoHeight,

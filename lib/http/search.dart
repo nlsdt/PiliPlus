@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:PiliPlus/models/search/search_trending/trending_data.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -205,6 +206,21 @@ class SearchHttp {
       };
     } else {
       return {'status': false, 'msg': res.data['message']};
+    }
+  }
+
+  static Future<LoadingState<TrendingData>> searchTrending(
+      {int limit = 30}) async {
+    final dynamic res = await Request().get(
+      Api.searchTrending,
+      queryParameters: {
+        'limit': limit,
+      },
+    );
+    if (res.data['code'] == 0) {
+      return LoadingState.success(TrendingData.fromJson(res.data['data']));
+    } else {
+      return LoadingState.error(res.data['message']);
     }
   }
 }
