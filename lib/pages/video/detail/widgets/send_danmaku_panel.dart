@@ -6,6 +6,7 @@ import 'package:PiliPlus/main.dart';
 import 'package:PiliPlus/pages/common/common_publish_page.dart';
 import 'package:PiliPlus/pages/setting/slide_color_picker.dart';
 import 'package:PiliPlus/utils/extension.dart';
+import 'package:PiliPlus/utils/storage.dart';
 import 'package:canvas_danmaku/models/danmaku_content_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,6 +71,12 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
     _mode = (widget.dmConfig?.mode ?? 1).obs;
     _fontsize = (widget.dmConfig?.fontsize ?? 25).obs;
     _color = (widget.dmConfig?.color ?? Colors.white).obs;
+    try {
+      final userInfo = GStorage.userInfo.get('userInfoCache');
+      if (userInfo?.vipStatus == 1) {
+        _colorList.add(Colors.transparent);
+      }
+    } catch (_) {}
   }
 
   @override
@@ -231,9 +238,7 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
   Widget _buildColorItem(Color color) {
     return GestureDetector(
       onTap: () {
-        if (_color.value != color) {
-          _color.value = color;
-        }
+        _color.value = color;
       },
       child: Container(
         width: 40,
@@ -253,6 +258,32 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
             color: color,
             borderRadius: BorderRadius.circular(6),
           ),
+          child: color == Colors.transparent
+              ? Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFDD94DA),
+                            Color(0xFF72B2EA),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                )
+              : null,
         ),
       ),
     );
@@ -263,9 +294,7 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
       () => Expanded(
         child: GestureDetector(
           onTap: () {
-            if (_mode.value != mode) {
-              _mode.value = mode;
-            }
+            _mode.value = mode;
           },
           child: Container(
             alignment: Alignment.center,
@@ -295,9 +324,7 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
       () => Expanded(
         child: GestureDetector(
           onTap: () {
-            if (_fontsize.value != fontsize) {
-              _fontsize.value = fontsize;
-            }
+            _fontsize.value = fontsize;
           },
           child: Container(
             alignment: Alignment.center,
@@ -464,6 +491,7 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
   @override
   Future onCustomPublish({required String message, List? pictures}) async {
     SmartDialog.showLoading(msg: '发送中...');
+    bool isColorful = _color.value == Colors.transparent;
     final res = await DanmakuHttp.shootDanmaku(
       oid: widget.cid,
       bvid: widget.bvid,
@@ -471,7 +499,8 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
       msg: editController.text,
       mode: _mode.value,
       fontsize: _fontsize.value,
-      color: _color.value.value & 0xFFFFFF,
+      color: isColorful ? null : _color.value.value & 0xFFFFFF,
+      colorful: isColorful,
     );
     SmartDialog.dismiss();
     if (res['status']) {
@@ -487,6 +516,7 @@ class _SendDanmakuPanelState extends CommonPublishPageState<SendDanmakuPanel> {
             _ => DanmakuItemType.scroll,
           },
           selfSend: true,
+          isColorful: isColorful,
         ),
       );
     } else {

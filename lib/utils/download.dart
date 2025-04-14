@@ -242,25 +242,22 @@ class DownloadUtils {
           }
         }
       }
-      // `SmartDialog.dismiss();` will call `onDismiss();`
       if (cancelToken.isCancelled) {
-        SmartDialog.dismiss(status: SmartStatus.loading);
         SmartDialog.showToast('已取消下载');
         return false;
       } else {
-        SmartDialog.dismiss(status: SmartStatus.loading);
         SmartDialog.showToast('图片已保存');
       }
       return true;
     } catch (e) {
       if (cancelToken.isCancelled) {
-        SmartDialog.dismiss(status: SmartStatus.loading);
         SmartDialog.showToast('已取消下载');
       } else {
-        SmartDialog.dismiss(status: SmartStatus.loading);
         SmartDialog.showToast(e.toString());
       }
       return false;
+    } finally {
+      SmartDialog.dismiss(status: SmartStatus.loading);
     }
   }
 }

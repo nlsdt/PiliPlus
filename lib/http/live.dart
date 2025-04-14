@@ -4,6 +4,7 @@ import 'package:PiliPlus/models/live/danmu_info.dart';
 import 'package:PiliPlus/models/live/follow.dart';
 import 'package:PiliPlus/models/live/live_emoticons/data.dart';
 import 'package:PiliPlus/models/live/live_emoticons/datum.dart';
+import 'package:PiliPlus/utils/wbi_sign.dart';
 import 'package:dio/dio.dart';
 import '../models/live/item.dart';
 import '../models/live/room_info.dart';
@@ -14,8 +15,22 @@ import 'init.dart';
 class LiveHttp {
   static Future<LoadingState<List<LiveItemModel>?>> liveList(
       {int? vmid, int? pn, int? ps, String? orderType}) async {
-    var res = await Request().get(Api.liveList,
-        queryParameters: {'page': pn, 'page_size': 30, 'platform': 'web'});
+    var res = await Request().get(
+      Api.liveList,
+      queryParameters: await WbiSign.makSign({
+        'page': pn,
+        'page_size': 30,
+        'platform': 'web',
+        'web_location': 0.0,
+      }),
+      options: Options(
+        headers: {
+          'origin': 'https://live.bilibili.com',
+          'referer': 'https://live.bilibili.com/',
+          'user-agent': Request.headerUa(type: 'pc'),
+        },
+      ),
+    );
     if (res.data['code'] == 0) {
       List<LiveItemModel>? list = (res.data['data']?['list'] as List?)
           ?.map<LiveItemModel>((e) => LiveItemModel.fromJson(e))

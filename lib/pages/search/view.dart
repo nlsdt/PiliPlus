@@ -143,15 +143,54 @@ class _SearchPageState extends State<SearchPage> with RouteAware {
           Padding(
             padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '大家都在搜',
+                  strutStyle: StrutStyle(leading: 0, height: 1),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
-                      .copyWith(fontWeight: FontWeight.bold),
+                      .copyWith(height: 1, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Get.toNamed(
+                      '/webview',
+                      parameters: {
+                        'url':
+                            'https://www.bilibili.com/blackboard/activity-trending-topic.html?navhide=1&native.theme=1&night=${Get.isDarkMode ? 1 : 0}'
+                      },
+                    );
+                  },
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    child: Text.rich(
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '完整榜单',
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Icon(
+                              size: 16,
+                              Icons.keyboard_arrow_right,
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const Spacer(),
                 SizedBox(
                   height: 34,
                   child: TextButton.icon(

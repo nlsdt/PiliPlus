@@ -112,6 +112,7 @@ class _BangumiPageState extends CommonPageState<BangumiPage, BangumiController>
                                 overlayColor:
                                     WidgetStateProperty.all(Colors.transparent),
                                 splashFactory: NoSplash.splashFactory,
+                                padding: const EdgeInsets.only(right: 10),
                                 indicatorPadding: const EdgeInsets.symmetric(
                                   horizontal: 4,
                                   vertical: 10,

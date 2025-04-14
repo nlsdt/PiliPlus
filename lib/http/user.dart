@@ -639,41 +639,6 @@ class UserHttp {
     }
   }
 
-  // 稍后再看播放全部
-  // static Future toViewPlayAll({required int oid, required String bvid}) async {
-  //   var res = await Request().get(
-  //     Api.watchLaterHtml,
-  //     data: {
-  //       'oid': oid,
-  //       'bvid': bvid,
-  //     },
-  //   );
-  //   String scriptContent =
-  //       extractScriptContents(parse(res.data).body!.outerHtml)[0];
-  //   int startIndex = scriptContent.indexOf('{');
-  //   int endIndex = scriptContent.lastIndexOf('};');
-  //   String jsonContent = scriptContent.substring(startIndex, endIndex + 1);
-  //   // 解析JSON字符串为Map
-  //   Map<String, dynamic> jsonData = json.decode(jsonContent);
-  //   // 输出解析后的数据
-  //   return {
-  //     'status': true,
-  //     'data': jsonData['resourceList']
-  //         .map((e) => MediaVideoItemModel.fromJson(e))
-  //         .toList()
-  //   };
-  // }
-  static List<String> extractScriptContents(String htmlContent) {
-    RegExp scriptRegExp = RegExp(r'<script>([\s\S]*?)<\/script>');
-    Iterable<Match> matches = scriptRegExp.allMatches(htmlContent);
-    List<String> scriptContents = <String>[];
-    for (Match match in matches) {
-      String scriptContent = match.group(1)!;
-      scriptContents.add(scriptContent);
-    }
-    return scriptContents;
-  }
-
   // 稍后再看列表
   static Future getMediaList({
     required dynamic type,

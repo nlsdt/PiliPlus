@@ -72,36 +72,36 @@ void imageSaveDialog({
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-                const SizedBox(width: 4),
-                iconButton(
-                  context: context,
-                  tooltip: '分享',
-                  onPressed: () {
-                    DownloadUtils.onShareImg(cover ?? '');
-                  },
-                  iconSize: 20,
-                  icon: Icons.share,
-                  bgColor: Colors.transparent,
-                  iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                iconButton(
-                  context: context,
-                  tooltip: '保存封面图',
-                  onPressed: () async {
-                    bool saveStatus = await DownloadUtils.downloadImg(
-                      context,
-                      [cover ?? ''],
-                    );
-                    // 保存成功，自动关闭弹窗
-                    if (saveStatus) {
+                if (cover?.isNotEmpty == true) ...[
+                  const SizedBox(width: 4),
+                  iconButton(
+                    context: context,
+                    tooltip: '分享',
+                    onPressed: () {
                       SmartDialog.dismiss();
-                    }
-                  },
-                  iconSize: 20,
-                  icon: Icons.download,
-                  bgColor: Colors.transparent,
-                  iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      DownloadUtils.onShareImg(cover!);
+                    },
+                    iconSize: 20,
+                    icon: Icons.share,
+                    bgColor: Colors.transparent,
+                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  iconButton(
+                    context: context,
+                    tooltip: '保存封面图',
+                    onPressed: () async {
+                      bool saveStatus =
+                          await DownloadUtils.downloadImg(context, [cover!]);
+                      if (saveStatus) {
+                        SmartDialog.dismiss();
+                      }
+                    },
+                    iconSize: 20,
+                    icon: Icons.download,
+                    bgColor: Colors.transparent,
+                    iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ],
             ),
           ),

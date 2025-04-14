@@ -245,6 +245,15 @@ class AuthorPanel extends StatelessWidget {
         );
 
   Widget morePanel(context) {
+    String? bvid;
+    try {
+      bvid = switch (item.type) {
+        'DYNAMIC_TYPE_AV' => item.modules.moduleDynamic.major.archive.bvid,
+        'DYNAMIC_TYPE_UGC_SEASON' =>
+          item.modules.moduleDynamic.major.ugcSeason.bvid,
+        _ => null,
+      };
+    } catch (_) {}
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Column(
@@ -270,14 +279,13 @@ class AuthorPanel extends StatelessWidget {
               ),
             ),
           ),
-          if (item.type == 'DYNAMIC_TYPE_AV')
+          if (bvid != null)
             ListTile(
               onTap: () async {
+                Get.back();
                 try {
-                  String bvid = item.modules.moduleDynamic.major.archive.bvid;
                   var res = await UserHttp.toViewLater(bvid: bvid);
                   SmartDialog.showToast(res['msg']);
-                  Get.back();
                 } catch (err) {
                   SmartDialog.showToast('出错了：${err.toString()}');
                 }
@@ -304,6 +312,15 @@ class AuthorPanel extends StatelessWidget {
             minLeadingWidth: 0,
           ),
           ListTile(
+            onTap: () {
+              Get.back();
+              SavePanel.toSavePanel(item: item);
+            },
+            minLeadingWidth: 0,
+            leading: const Icon(Icons.save_alt, size: 19),
+            title: Text('保存动态', style: Theme.of(context).textTheme.titleSmall!),
+          ),
+          ListTile(
             title: Text(
               '临时屏蔽：${item.modules.moduleAuthor.name}',
               style: Theme.of(context).textTheme.titleSmall,
@@ -319,15 +336,6 @@ class AuthorPanel extends StatelessWidget {
                   '已临时屏蔽${item.modules.moduleAuthor.name}(${item.modules.moduleAuthor.mid})，重启恢复');
             },
             minLeadingWidth: 0,
-          ),
-          ListTile(
-            onTap: () {
-              Get.back();
-              SavePanel.toSavePanel(item: item);
-            },
-            minLeadingWidth: 0,
-            leading: const Icon(Icons.save_alt, size: 19),
-            title: Text('保存动态', style: Theme.of(context).textTheme.titleSmall!),
           ),
           if (item.modules.moduleAuthor.mid == Accounts.main.mid) ...[
             ListTile(

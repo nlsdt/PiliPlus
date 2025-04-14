@@ -2310,11 +2310,13 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     if (isFullScreen) {
       Utils.showFSSheet(
         context,
-        child: Theme(
-          data: themeData,
-          child: listSheetContent(false),
-        ),
         isFullScreen: () => isFullScreen,
+        child: videoDetailController.plPlayerController.darkVideoPage
+            ? Theme(
+                data: themeData,
+                child: listSheetContent(false),
+              )
+            : listSheetContent(false),
       );
     } else {
       videoDetailController.childKey.currentState?.showBottomSheet(
@@ -2406,15 +2408,21 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     if (isFullScreen) {
       Utils.showFSSheet(
         context,
-        child: Theme(
-          data: themeData,
-          child: ViewPointsPage(
-            enableSlide: false,
-            videoDetailController: videoDetailController,
-            plPlayerController: plPlayerController,
-          ),
-        ),
         isFullScreen: () => isFullScreen,
+        child: videoDetailController.plPlayerController.darkVideoPage
+            ? Theme(
+                data: themeData,
+                child: ViewPointsPage(
+                  enableSlide: false,
+                  videoDetailController: videoDetailController,
+                  plPlayerController: plPlayerController,
+                ),
+              )
+            : ViewPointsPage(
+                enableSlide: false,
+                videoDetailController: videoDetailController,
+                plPlayerController: plPlayerController,
+              ),
       );
     } else {
       videoDetailController.childKey.currentState?.showBottomSheet(

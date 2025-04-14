@@ -177,22 +177,36 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
               URLRequest(url: WebUri.uri(Uri.tryParse(_url) ?? Uri())),
           onWebViewCreated: (InAppWebViewController controller) {
             _webViewController = controller;
-            _webViewController?.addJavaScriptHandler(
+            controller.addJavaScriptHandler(
               handlerName: 'finishButtonClicked',
               callback: (args) {
                 Get.back();
               },
             );
-            _webViewController?.addJavaScriptHandler(
+            controller.addJavaScriptHandler(
               handlerName: 'infoBarClicked',
               callback: (args) async {
-                WebUri? uri = await _webViewController?.getUrl();
+                WebUri? uri = await controller.getUrl();
                 if (uri != null) {
                   String? oid =
                       RegExp(r'oid=(\d+)').firstMatch(uri.toString())?.group(1);
                   if (oid != null) {
                     PiliScheme.videoPush(int.parse(oid), null);
                   }
+                }
+              },
+            );
+            controller.addJavaScriptHandler(
+              handlerName: "onSearch",
+              callback: (args) {
+                dynamic title = args.firstOrNull;
+                if (title != null) {
+                  Get.toNamed(
+                    '/searchResult',
+                    parameters: {
+                      'keyword': title,
+                    },
+                  );
                 }
               },
             );
@@ -204,27 +218,41 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
             this.title.value = title ?? '';
           },
           onCloseWindow: (controller) => Get.back(),
-          onLoadStop: (controller, url) {
-            if (url
-                .toString()
-                .startsWith('https://www.bilibili.com/h5/note-app')) {
-              _webViewController?.evaluateJavascript(source: """
+          onLoadStop: (controller, uri) {
+            final url = uri.toString();
+            if (url.startsWith('https://www.bilibili.com/h5/note-app')) {
+              controller.evaluateJavascript(source: """
   document.querySelector('.finish-btn').addEventListener('click', function() {
       window.flutter_inappwebview.callHandler('finishButtonClicked');
   });
 """);
-              _webViewController?.evaluateJavascript(source: """
+              controller.evaluateJavascript(source: """
   document.querySelector('.info-bar').addEventListener('click', function() {
       window.flutter_inappwebview.callHandler('infoBarClicked');
   });
 """);
-            } else if (url.toString().startsWith('https://live.bilibili.com')) {
-              _webViewController?.evaluateJavascript(
+            } else if (url.startsWith('https://live.bilibili.com')) {
+              controller.evaluateJavascript(
                 source: '''
                   document.styleSheets[0].insertRule('div.open-app-btn.bili-btn-warp {display:none;}', 0);
                   document.styleSheets[0].insertRule('#app__display-area > div.control-panel {display:none;}', 0);
                   ''',
               );
+            } else if (url.startsWith(
+                'https://www.bilibili.com/blackboard/activity-trending-topic.html')) {
+              controller.evaluateJavascript(source: '''
+    document.addEventListener("click", function(e) {
+        const parentElement = e.target.parentElement;
+        if (parentElement) {
+            const trendingTitleElement = parentElement.querySelector(".trending-title");
+            if (trendingTitleElement) {
+                const rankElement = trendingTitleElement.querySelector(".rank-index");
+                const title = rankElement ? trendingTitleElement.innerText.replace(rankElement.innerText, "").trim() : trendingTitleElement.innerText;
+                window.flutter_inappwebview.callHandler("onSearch", title);
+            }
+        }
+    });
+''');
             }
             // _webViewController?.evaluateJavascript(
             //   source: '''
@@ -235,6 +263,11 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
           },
           onDownloadStartRequest: Platform.isAndroid
               ? (controller, request) {
+                  if (_url.startsWith(
+                      'https://www.bilibili.com/blackboard/activity-trending-topic.html')) {
+                    progress.value = 1;
+                    return;
+                  }
                   showDialog(
                       context: context,
                       builder: (context) {
@@ -286,6 +319,7 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
             String url = request.url.toString();
             if (url.startsWith(
                 'https://passport.bilibili.com/x/passport-login/web')) {
+              progress.value = 1;
               return WebResourceResponse();
             }
             return null;
@@ -306,6 +340,9 @@ class _WebviewPageNewState extends State<WebviewPageNew> {
               return NavigationActionPolicy.CANCEL;
             } else if (RegExp(r'^(?!(https?://))\S+://', caseSensitive: false)
                 .hasMatch(url)) {
+              if (url.startsWith('bilibili://browser')) {
+                return NavigationActionPolicy.CANCEL;
+              }
               if (context.mounted) {
                 SnackBar snackBar = SnackBar(
                   content: const Text('当前网页将要打开外部链接，是否打开'),

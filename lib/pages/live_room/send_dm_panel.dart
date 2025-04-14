@@ -6,7 +6,6 @@ import 'package:PiliPlus/pages/live_emote/controller.dart';
 import 'package:PiliPlus/pages/live_emote/view.dart';
 import 'package:PiliPlus/pages/live_room/controller.dart';
 import 'package:PiliPlus/pages/video/detail/reply_new/toolbar_icon_button.dart';
-import 'package:canvas_danmaku/models/danmaku_content_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -221,10 +220,6 @@ class _ReplyPageState extends CommonPublishPageState<LiveSendDmPanel> {
     emoticonOptions,
     emoticonUnique,
   }) async {
-    if (!liveRoomController.isLogin) {
-      SmartDialog.showToast('未登录');
-      return;
-    }
     final res = await LiveHttp.sendLiveMsg(
       roomId: liveRoomController.roomId,
       msg: message,
@@ -235,13 +230,13 @@ class _ReplyPageState extends CommonPublishPageState<LiveSendDmPanel> {
       Get.back();
       liveRoomController.savedDanmaku = null;
       SmartDialog.showToast('发送成功');
-      liveRoomController.plPlayerController.danmakuController?.addDanmaku(
-        DanmakuContentItem(
-          emoticonUnique ?? message,
-          type: DanmakuItemType.scroll,
-          selfSend: true,
-        ),
-      );
+      // liveRoomController.plPlayerController.danmakuController?.addDanmaku(
+      //   DanmakuContentItem(
+      //     emoticonUnique ?? message,
+      //     type: DanmakuItemType.scroll,
+      //     selfSend: true,
+      //   ),
+      // );
     } else {
       SmartDialog.showToast(res['msg']);
     }

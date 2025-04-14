@@ -106,7 +106,6 @@ class _EpisodePanelState extends CommonSlidePageState<EpisodePanel>
   Rx<LoadingState>? _favState;
 
   late bool _isInit = true;
-  late final Color primary = Theme.of(context).colorScheme.primary;
 
   void listener() {
     _currentTabIndex.value = _tabController.index;
@@ -352,6 +351,7 @@ class _EpisodePanelState extends CommonSlidePageState<EpisodePanel>
         pubdate = episode.pubTime;
         break;
     }
+    late final Color primary = Theme.of(context).colorScheme.primary;
 
     return Material(
       color: Colors.transparent,

@@ -13,6 +13,7 @@ import 'package:canvas_danmaku/canvas_danmaku.dart';
 import 'package:floating/floating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:PiliPlus/common/widgets/network_img_layer.dart';
 import 'package:PiliPlus/plugin/pl_player/index.dart';
@@ -552,6 +553,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
             Expanded(
               child: GestureDetector(
                 onTap: onSendDanmaku,
+                behavior: HitTestBehavior.opaque,
                 child: Text(
                   '发送弹幕',
                   style: TextStyle(color: _color),
@@ -569,6 +571,10 @@ class _LiveRoomPageState extends State<LiveRoomPage>
       );
 
   void onSendDanmaku([bool fromEmote = false]) {
+    if (!_liveRoomController.isLogin) {
+      SmartDialog.showToast('账号未登录');
+      return;
+    }
     Get.generalDialog(
       barrierLabel: '',
       barrierDismissible: true,
