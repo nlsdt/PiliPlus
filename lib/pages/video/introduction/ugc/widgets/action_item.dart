@@ -1,5 +1,6 @@
 import 'dart:math' show pi;
 
+import 'package:PiliPlus/utils/extension.dart';
 import 'package:flutter/material.dart';
 
 class ActionItem extends StatelessWidget {
@@ -35,16 +36,17 @@ class ActionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    late final primary = !expand && colorScheme.isLight
+        ? colorScheme.inversePrimary
+        : colorScheme.primary;
     Widget child = Icon(
       selectStatus ? selectIcon!.icon! : icon.icon,
       size: 18,
-      color: selectStatus
-          ? theme.colorScheme.primary
-          : icon.color ?? theme.colorScheme.outline,
+      color: selectStatus ? primary : icon.color ?? colorScheme.outline,
     );
 
     if (animation != null) {
-      final primary = theme.colorScheme.primary;
       child = Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,

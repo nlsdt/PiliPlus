@@ -31,6 +31,9 @@ class SelectDialog<T> extends StatelessWidget {
     return AlertDialog(
       clipBehavior: Clip.hardEdge,
       title: Text(title),
+      constraints: subtitleBuilder != null
+          ? const BoxConstraints(maxWidth: 320, minWidth: 320)
+          : null,
       contentPadding: const EdgeInsets.symmetric(vertical: 12),
       content: SingleChildScrollView(
         child: RadioGroup<T>(

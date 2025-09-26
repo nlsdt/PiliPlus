@@ -1272,19 +1272,8 @@ class VideoDetailController extends GetxController
 
       /// 优先顺序 设置中指定质量 -> 当前可选的最高质量
       AudioItem? firstAudio;
-      final List<AudioItem> audiosList = data.dash!.audio ?? <AudioItem>[];
-      if (data.dash!.dolby?.audio != null &&
-          data.dash!.dolby!.audio!.isNotEmpty) {
-        // 杜比
-        audiosList.insert(0, data.dash!.dolby!.audio!.first);
-      }
-
-      if (data.dash!.flac?.audio != null) {
-        // 无损
-        audiosList.insert(0, data.dash!.flac!.audio!);
-      }
-
-      if (audiosList.isNotEmpty) {
+      final audiosList = data.dash?.audio;
+      if (audiosList != null && audiosList.isNotEmpty) {
         final List<int> numbers = audiosList.map((map) => map.id!).toList();
         int closestNumber = Utils.findClosestNumber(
           plPlayerController.cacheAudioQa,

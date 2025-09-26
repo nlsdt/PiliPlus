@@ -1463,7 +1463,10 @@ class PlPlayerController {
 
   // 全屏
   bool fsProcessing = false;
-  Future<void> triggerFullScreen({bool status = true}) async {
+  Future<void> triggerFullScreen({
+    bool status = true,
+    bool inAppFullScreen = false,
+  }) async {
     if (fsProcessing) {
       return;
     }
@@ -1493,7 +1496,7 @@ class PlPlayerController {
                   (isVertical || size.height / size.width < 1.25)))) {
         await verticalScreenForTwoSeconds();
       } else {
-        await landScape();
+        await landscape(inAppFullScreen: inAppFullScreen);
       }
     } else if (isFullScreen.value && !status) {
       showStatusBar();

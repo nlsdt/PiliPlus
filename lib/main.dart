@@ -26,11 +26,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
+
+WebViewEnvironment? webViewEnvironment;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +65,17 @@ void main() async {
       ),
       setupServiceLocator(),
     ]);
+  }
+
+  if (Platform.isWindows) {
+    if (await WebViewEnvironment.getAvailableVersion() != null) {
+      final dir = await getApplicationSupportDirectory();
+      webViewEnvironment = await WebViewEnvironment.create(
+        settings: WebViewEnvironmentSettings(
+          userDataFolder: path.join(dir.path, 'flutter_inappwebview'),
+        ),
+      );
+    }
   }
 
   Request();
@@ -244,7 +260,9 @@ class MyApp extends StatelessWidget {
             FlutterSmartDialog.observer,
             PageUtils.routeObserver,
           ],
-          scrollBehavior: const ScrollBehavior().copyWith(scrollbars: false),
+          scrollBehavior: const MaterialScrollBehavior().copyWith(
+            scrollbars: false,
+          ),
         );
       }),
     );

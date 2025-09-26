@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:PiliPlus/grpc/grpc_req.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/http/user.dart';
+import 'package:PiliPlus/main.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
 import 'package:PiliPlus/models/common/home_tab_type.dart';
 import 'package:PiliPlus/models/user/info.dart';
@@ -27,15 +28,20 @@ import 'package:get/get.dart';
 
 abstract class LoginUtils {
   static FutureOr setWebCookie([Account? account]) {
-    if (Platform.isWindows) {
+    if (Platform.isLinux) {
       return null;
     }
     final cookies = (account ?? Accounts.main).cookieJar.toList();
-    final webManager = web.CookieManager.instance();
+    final webManager = web.CookieManager.instance(
+      webViewEnvironment: webViewEnvironment,
+    );
+    final isWindows = Platform.isWindows;
     return Future.wait(
       cookies.map(
         (cookie) => webManager.setCookie(
-          url: web.WebUri(cookie.domain ?? ''),
+          url: web.WebUri(
+            '${isWindows ? 'https://' : ''} ${cookie.domain}',
+          ),
           name: cookie.name,
           value: cookie.value,
           path: cookie.path ?? '/',
@@ -117,7 +123,10 @@ abstract class LoginUtils {
     GrpcReq.updateHeaders(null);
 
     await Future.wait([
-      if (!Platform.isWindows) web.CookieManager.instance().deleteAllCookies(),
+      if (!Platform.isLinux)
+        web.CookieManager.instance(
+          webViewEnvironment: webViewEnvironment,
+        ).deleteAllCookies(),
       GStorage.userInfo.delete('userInfoCache'),
     ]);
 

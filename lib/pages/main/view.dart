@@ -132,6 +132,14 @@ class _MainAppState extends State<MainApp>
     if (_mainController.minimizeOnExit) {
       windowManager.hide();
     } else {
+      _onClose();
+    }
+  }
+
+  void _onClose() {
+    if (Platform.isWindows) {
+      const MethodChannel('window_control').invokeMethod('closeWindow');
+    } else {
       exit(0);
     }
   }
@@ -157,7 +165,7 @@ class _MainAppState extends State<MainApp>
       case 'show':
         windowManager.show();
       case 'exit':
-        exit(0);
+        _onClose();
     }
   }
 

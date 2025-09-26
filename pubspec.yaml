@@ -75,12 +75,7 @@ dependencies:
   # webview_cookie_manager: ^2.0.6
   # 浏览器
   # webview_flutter: ^4.10.0
-  # flutter_inappwebview: ^6.1.5
-  flutter_inappwebview:
-    git:
-      url: https://github.com/bggRGjQaUbCoE/flutter_inappwebview.git
-      path: flutter_inappwebview
-      ref: version_6.1.5
+  flutter_inappwebview: ^6.1.5
   # 解决sliver滑动不同步
   # extended_nested_scroll_view: ^6.2.1
   extended_nested_scroll_view:

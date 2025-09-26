@@ -142,7 +142,9 @@ class _PopularSeriesPageState extends State<PopularSeriesPage> with GridMixin {
                     return ListTile(
                       dense: true,
                       minTileHeight: 44,
-                      selected: isCurr,
+                      tileColor: isCurr
+                          ? Theme.of(context).highlightColor
+                          : null,
                       onTap: () {
                         Get.back();
                         if (!isCurr) {

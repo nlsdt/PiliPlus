@@ -43,7 +43,7 @@ class UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isLight = colorScheme.brightness.isLight;
+    final isLight = colorScheme.isLight;
     final isPortrait = context.width < 600;
     return ViewSafeArea(
       top: !isPortrait,

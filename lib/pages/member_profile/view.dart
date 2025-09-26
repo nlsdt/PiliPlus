@@ -488,31 +488,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
           SmartDialog.showToast('不能选GIF');
           return;
         }
-        CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile.path,
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: '裁剪',
-              toolbarColor: theme.colorScheme.secondaryContainer,
-              toolbarWidgetColor: theme.colorScheme.onSecondaryContainer,
-              statusBarLight: theme.colorScheme.brightness.isLight,
-              aspectRatioPresets: [CropAspectRatioPresetCustom()],
-              lockAspectRatio: true,
-              hideBottomControls: true,
-              cropStyle: CropStyle.circle,
-              initAspectRatio: CropAspectRatioPresetCustom(),
-            ),
-            IOSUiSettings(
-              title: '裁剪',
-              aspectRatioPresets: [CropAspectRatioPresetCustom()],
-              cropStyle: CropStyle.circle,
-              aspectRatioLockEnabled: true,
-              resetAspectRatioEnabled: false,
-              aspectRatioPickerButtonHidden: true,
-            ),
-          ],
-        );
-        if (croppedFile != null) {
+        String? imagePath;
+        if (Utils.isMobile) {
+          CroppedFile? croppedFile = await ImageCropper.platform.cropImage(
+            sourcePath: pickedFile.path,
+            uiSettings: [
+              AndroidUiSettings(
+                toolbarTitle: '裁剪',
+                toolbarColor: theme.colorScheme.secondaryContainer,
+                toolbarWidgetColor: theme.colorScheme.onSecondaryContainer,
+                statusBarLight: theme.colorScheme.isLight,
+                aspectRatioPresets: [CropAspectRatioPresetCustom()],
+                lockAspectRatio: true,
+                hideBottomControls: true,
+                cropStyle: CropStyle.circle,
+                initAspectRatio: CropAspectRatioPresetCustom(),
+              ),
+              IOSUiSettings(
+                title: '裁剪',
+                aspectRatioPresets: [CropAspectRatioPresetCustom()],
+                cropStyle: CropStyle.circle,
+                aspectRatioLockEnabled: true,
+                resetAspectRatioEnabled: false,
+                aspectRatioPickerButtonHidden: true,
+              ),
+            ],
+          );
+          if (croppedFile != null) {
+            imagePath = croppedFile.path;
+          }
+        } else {
+          imagePath = pickedFile.path;
+        }
+        if (imagePath != null) {
           Request()
               .post(
                 '/x/member/web/face/update',
@@ -522,7 +530,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 data: FormData.fromMap({
                   'dopost': 'save',
                   'DisplayRank': 10000,
-                  'face': await MultipartFile.fromFile(croppedFile.path),
+                  'face': await MultipartFile.fromFile(imagePath),
                 }),
               )
               .then((res) {

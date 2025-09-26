@@ -7,6 +7,7 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/login/controller.dart';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -76,8 +77,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
             if (isMobile)
               TextButton.icon(
-                onPressed: () => launchUrl(
-                  Uri.parse(_loginPageCtr.codeInfo.value.data.url),
+                onPressed: () => PageUtils.launchURL(
+                  _loginPageCtr.codeInfo.value.data.url,
                   mode: LaunchMode.externalNonBrowserApplication,
                 ),
                 icon: const Icon(Icons.open_in_browser_outlined),

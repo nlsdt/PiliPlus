@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:PiliPlus/http/ua_type.dart';
+import 'package:PiliPlus/main.dart';
 import 'package:PiliPlus/models/common/webview_menu_type.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/cache_manage.dart';
@@ -60,7 +61,7 @@ class _WebviewPageState extends State<WebviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isWindows) {
+    if (Platform.isLinux) {
       return Scaffold(
         appBar: AppBar(),
         body: Center(
@@ -156,6 +157,7 @@ class _WebviewPageState extends State<WebviewPage> {
             ),
       body: SafeArea(
         child: InAppWebView(
+          webViewEnvironment: webViewEnvironment,
           initialSettings: InAppWebViewSettings(
             clearCache: true,
             javaScriptEnabled: true,

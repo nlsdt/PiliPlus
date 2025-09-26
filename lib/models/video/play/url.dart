@@ -118,16 +118,12 @@ class Dash {
     this.minBufferTime,
     this.video,
     this.audio,
-    this.dolby,
-    this.flac,
   });
 
   int? duration;
   double? minBufferTime;
   List<VideoItem>? video;
   List<AudioItem>? audio;
-  Dolby? dolby;
-  Flac? flac;
 
   Dash.fromJson(Map<String, dynamic> json) {
     duration = json['duration'];
@@ -138,8 +134,16 @@ class Dash {
     audio = (json['audio'] as List?)
         ?.map<AudioItem>((e) => AudioItem.fromJson(e))
         .toList();
-    dolby = json['dolby'] != null ? Dolby.fromJson(json['dolby']) : null;
-    flac = json['flac'] != null ? Flac.fromJson(json['flac']) : null;
+    if (json['dolby']?['audio'] case List list) {
+      (audio ??= <AudioItem>[]).insertAll(
+        0,
+        list.map((e) => AudioItem.fromJson(e)),
+      );
+    }
+    final flacAudio = json['flac']?['audio'];
+    if (flacAudio != null) {
+      (audio ??= <AudioItem>[]).insert(0, AudioItem.fromJson(flacAudio));
+    }
   }
 }
 
@@ -298,35 +302,5 @@ class FormatItem {
     newDesc = json['new_description'];
     displayDesc = json['display_desc'];
     codecs = (json['codecs'] as List?)?.fromCast<String>();
-  }
-}
-
-class Dolby {
-  Dolby({
-    this.type,
-    this.audio,
-  });
-
-  // 1：普通杜比音效 2：全景杜比音效
-  int? type;
-  List<AudioItem>? audio;
-
-  Dolby.fromJson(Map<String, dynamic> json) {
-    type = json['type'];
-    audio = (json['audio'] as List?)
-        ?.map<AudioItem>((e) => AudioItem.fromJson(e))
-        .toList();
-  }
-}
-
-class Flac {
-  Flac({this.display, this.audio});
-
-  bool? display;
-  AudioItem? audio;
-
-  Flac.fromJson(Map<String, dynamic> json) {
-    display = json['display'];
-    audio = json['audio'] != null ? AudioItem.fromJson(json['audio']) : null;
   }
 }

@@ -161,7 +161,7 @@ class _LiveRoomPageState extends State<LiveRoomPage>
         if (isFullScreen && Platform.isIOS) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!_liveRoomController.isPortrait.value) {
-              landScape();
+              landscape();
             }
           });
         }
@@ -830,14 +830,14 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                 ),
                 Builder(
                   builder: (context) {
-                    final theme = Theme.of(context).colorScheme;
+                    final colorScheme = Theme.of(context).colorScheme;
                     return Material(
                       type: MaterialType.transparency,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
                           InkWell(
-                            overlayColor: overlayColor(theme),
+                            overlayColor: overlayColor(colorScheme),
                             customBorder: const CircleBorder(),
                             onTapDown: _liveRoomController.onLikeTapDown,
                             onTapUp: _liveRoomController.onLikeTapUp,
@@ -873,9 +873,9 @@ class _LiveRoomPageState extends State<LiveRoomPage>
                                   'x$likeClickTime',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: theme.brightness.isDark
-                                        ? theme.primary
-                                        : theme.inversePrimary,
+                                    color: colorScheme.isDark
+                                        ? colorScheme.primary
+                                        : colorScheme.inversePrimary,
                                   ),
                                 ),
                               );

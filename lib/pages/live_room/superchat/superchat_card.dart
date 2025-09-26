@@ -43,7 +43,9 @@ class _SuperChatCardState extends State<SuperChatCard> {
   }
 
   void _remove() {
-    Future.delayed(const Duration(seconds: 1), _onRemove);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 1), _onRemove);
+    });
   }
 
   void _onRemove() {

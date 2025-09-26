@@ -189,7 +189,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 (mode == FullScreenMode.auto && isVertical) ||
                 (mode == FullScreenMode.ratio &&
                     (isVertical || maxHeight / maxWidth < 1.25)))) {
-              landScape();
+              landscape();
             }
           });
         }

@@ -631,13 +631,13 @@ abstract class PageUtils {
     }
   }
 
-  static Future<void> launchURL(String url) async {
+  static Future<void> launchURL(
+    String url, {
+    LaunchMode mode = LaunchMode.externalApplication,
+  }) async {
     try {
       final Uri uri = Uri.parse(url);
-      if (!await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      )) {
+      if (!await launchUrl(uri, mode: mode)) {
         SmartDialog.showToast('Could not launch $url');
       }
     } catch (e) {

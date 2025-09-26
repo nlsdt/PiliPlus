@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:PiliPlus/utils/extension.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:path_provider/path_provider.dart';
 
 abstract class CacheManage {
@@ -11,28 +12,23 @@ abstract class CacheManage {
   static Future<int> loadApplicationCache([
     final num maxSize = double.infinity,
   ]) async {
-    /// clear all of image in memory
-    // clearMemoryImageCache();
-    /// get ImageCache
-    // var res = getMemoryImageCache();
-
-    // 缓存大小
-    // cached_network_image directory
-    Directory tempDirectory = await getTemporaryDirectory();
-    if (Utils.isDesktop) {
-      final dir = Directory('${tempDirectory.path}/libCachedImageData');
-      if (dir.existsSync()) {
-        return await getTotalSizeOfFilesInDir(dir, maxSize);
-      } else {
-        return 0;
+    try {
+      Directory tempDirectory = await getTemporaryDirectory();
+      if (Utils.isDesktop) {
+        final dir = Directory('${tempDirectory.path}/libCachedImageData');
+        if (dir.existsSync()) {
+          return await getTotalSizeOfFilesInDir(dir, maxSize);
+        } else {
+          return 0;
+        }
       }
-    }
 
-    // 获取缓存大小
-    if (tempDirectory.existsSync()) {
-      return await getTotalSizeOfFilesInDir(tempDirectory, maxSize);
+      if (tempDirectory.existsSync()) {
+        return await getTotalSizeOfFilesInDir(tempDirectory, maxSize);
+      }
+    } catch (_) {
+      if (kDebugMode) rethrow;
     }
-
     return 0;
   }
 
@@ -66,20 +62,23 @@ abstract class CacheManage {
 
   // 清除 Library/Caches 目录及文件缓存
   static Future<void> clearLibraryCache() async {
-    var tempDirectory = await getTemporaryDirectory();
-    if (Utils.isDesktop) {
-      final dir = Directory('${tempDirectory.path}/libCachedImageData');
-      if (dir.existsSync()) {
-        await dir.delete(recursive: true);
+    try {
+      var tempDirectory = await getTemporaryDirectory();
+      if (Utils.isDesktop) {
+        final dir = Directory('${tempDirectory.path}/libCachedImageData');
+        if (dir.existsSync()) {
+          await dir.delete(recursive: true);
+        }
+        return;
       }
-      return;
-    }
-    if (tempDirectory.existsSync()) {
-      // await appDocDir.delete(recursive: true);
-      final children = tempDirectory.list(recursive: false);
-      await for (final file in children) {
-        await file.delete(recursive: true);
+      if (tempDirectory.existsSync()) {
+        final children = tempDirectory.list(recursive: false);
+        await for (final file in children) {
+          await file.delete(recursive: true);
+        }
       }
+    } catch (_) {
+      if (kDebugMode) rethrow;
     }
   }
 

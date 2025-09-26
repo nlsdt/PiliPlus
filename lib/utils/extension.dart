@@ -109,6 +109,10 @@ extension ColorSchemeExt on ColorScheme {
 
   Color get freeColor =>
       brightness.isLight ? const Color(0xFFFF7F24) : const Color(0xFFD66011);
+
+  bool get isLight => brightness.isLight;
+
+  bool get isDark => brightness.isDark;
 }
 
 extension Unique<E, Id> on List<E> {

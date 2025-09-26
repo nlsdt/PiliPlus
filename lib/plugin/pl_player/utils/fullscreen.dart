@@ -8,19 +8,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 //横屏
-Future<void> landScape() async {
-  dynamic document;
+Future<void> landscape({bool inAppFullScreen = false}) async {
   try {
-    if (kIsWeb) {
-      await document.documentElement?.requestFullscreen();
-    } else if (Utils.isMobile) {
+    if (Utils.isMobile) {
       await AutoOrientation.landscapeAutoMode(forceSensor: true);
-    } else if (Utils.isDesktop && Pref.nativeFullscreen) {
+    } else if (Utils.isDesktop && !inAppFullScreen) {
       await const MethodChannel(
         'com.alexmercerind/media_kit_video',
-      ).invokeMethod(
-        'Utils.EnterNativeFullscreen',
-      );
+      ).invokeMethod('Utils.EnterNativeFullscreen');
     }
   } catch (exception, stacktrace) {
     if (kDebugMode) {
@@ -81,25 +76,22 @@ Future<void> showStatusBar() async {
     return;
   }
   _showStatusBar = true;
-  dynamic document;
-  late SystemUiMode mode = SystemUiMode.edgeToEdge;
   try {
-    if (kIsWeb) {
-      document.exitFullscreen();
-    } else if (Utils.isMobile) {
+    if (Utils.isMobile) {
+      SystemUiMode mode;
       if (Platform.isAndroid && (await Utils.sdkInt < 29)) {
         mode = SystemUiMode.manual;
+      } else {
+        mode = SystemUiMode.edgeToEdge;
       }
       await SystemChrome.setEnabledSystemUIMode(
         mode,
         overlays: SystemUiOverlay.values,
       );
-    } else if (Utils.isDesktop && Pref.nativeFullscreen) {
+    } else if (Utils.isDesktop) {
       await const MethodChannel(
         'com.alexmercerind/media_kit_video',
-      ).invokeMethod(
-        'Utils.ExitNativeFullscreen',
-      );
+      ).invokeMethod('Utils.ExitNativeFullscreen');
     }
   } catch (_) {
     if (kDebugMode) rethrow;
