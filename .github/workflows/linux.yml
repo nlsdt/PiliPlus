@@ -52,9 +52,9 @@ jobs:
           channel: stable
           flutter-version-file: pubspec.yaml
 
-      - name: Get Flutter dependencies
-        run: flutter pub get
-        shell: bash
+      # - name: Get Flutter dependencies
+      #   run: flutter pub get
+      #   shell: bash
 
       - name: Set and Extract version
         run: |
@@ -74,6 +74,7 @@ jobs:
           path: |
             build/linux/x64/release/bundle/
             assets/linux/
+            assets/images/logo/
 
   Package_deb:
     name: Packege deb
