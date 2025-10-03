@@ -104,8 +104,10 @@ jobs:
 
           printf "安装文件...\n";
           install -Dm755 ../build/linux/x64/release/bundle/piliplus opt/PiliPlus/piliplus;
-          install -Dm644 ../build/linux/x64/release/bundle/lib opt/PiliPlus/lib;
-          install -Dm644 ../build/linux/x64/release/bundle/data opt/PiliPlus/data;
+          install -dm755 opt/PiliPlus/lib/;
+          cp      -r     ../build/linux/x64/release/bundle/lib/. opt/PiliPlus/lib/;          
+          install -dm755 opt/PiliPlus/data/;
+          cp      -r     ../build/linux/x64/release/bundle/data/* opt/PiliPlus/data/;
           install -Dm755 ../assets/linux/DEBIAN .;
           install -Dm755  ../assets/linux/piliplus.desktop usr/share/applications/piliplus.desktop;
           install -Dm644 ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png;
@@ -169,52 +171,52 @@ jobs:
           name: Linux_targz_packege
           path: PiliPlus_linux_*.tar.gz
   
-  Package_rpm:
-    name: Package rpm
-    runs-on: fedora-latest
-    needs: build-linux-app
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: Build_artifacts 
-          path: .
+  # Package_rpm:
+  #   name: Package rpm
+  #   runs-on: fedora-latest
+  #   needs: build-linux-app
+  #   steps:
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: Build_artifacts 
+  #         path: .
 
-      - name: Load version
-        run: |
-          VERSION=$(cat version.txt);
-          echo "version=$VERSION" >> $GITHUB_ENV;
+  #     - name: Load version
+  #       run: |
+  #         VERSION=$(cat version.txt);
+  #         echo "version=$VERSION" >> $GITHUB_ENV;
 
-      - name: Install dependencies
-      # need remove!!
-        run: |
-          whoami
-          pwd
-          sudo dnf update -y
-          sudo dnf install -y rpmdevtools
+  #     - name: Install dependencies
+  #     # need remove!!
+  #       run: |
+  #         whoami
+  #         pwd
+  #         sudo dnf update -y
+  #         sudo dnf install -y rpmdevtools
       
-      - name: Prepare rpmbuild environment
-        run: |
-          rpmdev-setuptree
+  #     - name: Prepare rpmbuild environment
+  #       run: |
+  #         rpmdev-setuptree
           
 
-      - name: Copy spec file
-        run: cp assets/linux/piliplus.spec .
+  #     - name: Copy spec file
+  #       run: cp assets/linux/piliplus.spec .
       
-      - name: Packege rpm
-        run: |
-          rpmbuild --define "_topdir $PWD/rpmbuild" --define "version ${{ env.version }}" -bb piliplus.spec
+  #     - name: Packege rpm
+  #       run: |
+  #         rpmbuild --define "_topdir $PWD/rpmbuild" --define "version ${{ env.version }}" -bb piliplus.spec
           
-      - name: Upload linux rpm package
-        uses: actions/upload-artifact@v4
-        with:
-          name: Linux_rpm_package
-          path: rpmbuild/RPMS/x86_64/piliplus-*.rpm
+  #     - name: Upload linux rpm package
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Linux_rpm_package
+  #         path: rpmbuild/RPMS/x86_64/piliplus-*.rpm
 
   All_in_one:
     name: All in one
     runs-on: ubuntu-latest
-    needs: [build-linux-app, Package_deb, Package_targz, Package_rpm]
+    needs: [build-linux-app, Package_deb, Package_targz] #Package_rpm]
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
