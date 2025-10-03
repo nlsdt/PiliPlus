@@ -44,7 +44,7 @@ jobs:
               linux-libc-dev nasm ninja-build pkg-config python3 python3-docutils wayland-protocols \
               x11proto-core-dev zlib1g-dev libfdk-aac-dev libtheora-dev libwebp-dev \
               unixodbc-dev libpq-dev libxxhash-dev libaom-dev \
-              libblkid1 liblzma5 libmpv-dev libasound2-dev
+              libblkid1 liblzma5 libmpv-dev libasound2-dev;
         shell: bash
 
       - name: Setup flutter
@@ -55,10 +55,10 @@ jobs:
 
       - name: Set and Extract version
         run: |
-          dart lib/scripts/build.dart
-          VERSION=$(grep 'version:' pubspecc.yml | sed 's/version: //g' | tr -d '[:space:]')
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "${VERSION}" > version.txt
+          dart lib/scripts/build.dart;
+          VERSION=$(grep 'version:' pubspec.yml | sed 's/version: //g' | tr -d '[:space:]');
+          echo "version=$VERSION" >> $GITHUB_ENV;
+          echo "${VERSION}" > version.txt;
         shell: bash
 
         #TODO: deb and rpm packages need to be build
@@ -78,7 +78,7 @@ jobs:
           compression-level: 1
 
   Package_deb:
-    name: Packege deb
+    name: Packege_deb
     runs-on: ubuntu-latest
     needs: build-linux-app
     steps:
@@ -90,52 +90,52 @@ jobs:
       
       - name: Load version
         run: |
-          VERSION=$(cat version.txt)
-          echo "version=$VERSION" >> $GITHUB_ENV
+          VERSION=$(cat version.txt);
+          echo "version=$VERSION" >> $GITHUB_ENV;
       
       - name: Packege deb
         run: |
-          printf "建立构建目录...\n"
-          mkdir "PiliPlus_linux_${{ env.version }}_amd64"
-          pushd "PiliPlus_linux_${{ env.version }}_amd64"
-          mkdir -p opt/PiliPlus
-          mkdir -p usr/share/applications
-          mkdir -p usr/share/icons/hicolor/512x512/apps
+          printf "建立构建目录...\n";
+          mkdir "PiliPlus_linux_${{ env.version }}_amd64";
+          pushd "PiliPlus_linux_${{ env.version }}_amd64";
+          mkdir -p opt/PiliPlus;
+          mkdir -p usr/share/applications;
+          mkdir -p usr/share/icons/hicolor/512x512/apps;
 
-          printf "安装文件...\n"
-          install -Dm755 ../build/linux/x64/release/bundle/piliplus opt/PiliPlus/piliplus
-          install -Dm644 ../build/linux/x64/release/bundle/lib/* opt/PiliPlus/lib
-          install -Dm644 ../build/linux/x64/release/bundle/data/* opt/PiliPlus/data
-          install -Dm755 ../assets/linux/DEBIAN .
-          install -Dm755  ../assets/linux/piliplus.desktop usr/share/applications/piliplus.desktop
-          install -Dm644 ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png
+          printf "安装文件...\n";
+          install -Dm755 ../build/linux/x64/release/bundle/piliplus opt/PiliPlus/piliplus;
+          install -Dm644 ../build/linux/x64/release/bundle/lib/* opt/PiliPlus/lib;
+          install -Dm644 ../build/linux/x64/release/bundle/data/* opt/PiliPlus/data;
+          install -Dm755 ../assets/linux/DEBIAN .;
+          install -Dm755  ../assets/linux/piliplus.desktop usr/share/applications/piliplus.desktop;
+          install -Dm644 ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png;
 
-          printf "修改控制文件...\n"
+          printf "修改控制文件...\n";
           # 替换版本号
-          sed -i  "2s/version_need_change/${{ env.version }}/g" DEBIAN/control
+          sed -i  "2s/version_need_change/${{ env.version }}/g" DEBIAN/control;
           # 计算安装大小并替换
-          SIZE_KB=$(du -s -b --apparent-size . | awk '{print int($1)}')
-          SIZE_KB=$(($SIZE_KB - $(du -s -b --apparent-size DEBIAN | awk '{print int($1)}')))
-          SIZE_KB=$(echo $SIZE_KB | awk '{print int($1/1024 + 0.999)}')
-          printf "\t安装大小: %s KB\n" "$SIZE_KB"
-          sed -i "9s/size_need_change/${SIZE_KB}/g" DEBIAN/control
+          SIZE_KB=$(du -s -b --apparent-size . | awk '{print int($1)}');
+          SIZE_KB=$(($SIZE_KB - $(du -s -b --apparent-size DEBIAN | awk '{print int($1)}')));
+          SIZE_KB=$(echo $SIZE_KB | awk '{print int($1/1024 + 0.999)}');
+          printf "\t安装大小: %s KB\n" "$SIZE_KB";
+          sed -i "9s/size_need_change/${SIZE_KB}/g" DEBIAN/control;
 
-          printf "生成并写入 md5sums ...\n"
-          md5sum opt/PiliPlus/piliplus >> DEBIAN/md5sums
-          md5sum opt/PiliPlus/lib/* >> DEBIAN/md5sums
-          md5sum opt/PiliPlus/data/icudtl.dat >> DEBIAN/md5sums
+          printf "生成并写入 md5sums ...\n";
+          md5sum opt/PiliPlus/piliplus >> DEBIAN/md5sums;
+          md5sum opt/PiliPlus/lib/* >> DEBIAN/md5sums;
+          md5sum opt/PiliPlus/data/icudtl.dat >> DEBIAN/md5sums;
 
-          printf "设置权限...\n"
-          chmod 0644 DEBIAN/control
-          chmod 0644 DEBIAN/md5sums
-          chmod 0755 DEBIAN/postinst
-          chmod 0755 DEBIAN/postrm
-          chmod 0755 DEBIAN/prerm
+          printf "设置权限...\n";
+          chmod 0644 DEBIAN/control;
+          chmod 0644 DEBIAN/md5sums;
+          chmod 0755 DEBIAN/postinst;
+          chmod 0755 DEBIAN/postrm;
+          chmod 0755 DEBIAN/prerm;
 
-          printf "打包 deb 文件...\n"
-          popd
-          dpkg-deb --build --verbose --root-owner-group "PiliPlus_linux_${{ env.version }}_amd64"
-          printf "完成: PiliPlus_linux_%s_amd64.deb\n" "${{ env.version }}"
+          printf "打包 deb 文件...\n";
+          popd;
+          dpkg-deb --build --verbose --root-owner-group "PiliPlus_linux_${{ env.version }}_amd64";
+          printf "完成: PiliPlus_linux_%s_amd64.deb\n" "${{ env.version }}";
         shell: bash
       
       - name: Upload linux deb package
@@ -145,7 +145,7 @@ jobs:
           path: PiliPlus_linux_*.deb
 
   Package_targz:
-    name: Packege targz
+    name: Packege_targz
     runs-on: ubuntu-latest
     needs: build-linux-app
     steps:
@@ -161,7 +161,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_ENV
       
       - name: Package .tar.gz
-        run: tar -zcvf PiliPlus_linux_${{ env.version }}_amd64.tar.gz -C build/linux/x64/release/bundle .
+        run: tar -zcvf PiliPlus_linux_${{ env.version }}_amd64.tar.gz -C build/linux/x64/release/bundle .;
       
       - name: Upload linux targz package
         uses: actions/upload-artifact@v4
@@ -170,7 +170,7 @@ jobs:
           path: PiliPlus_linux_*.tar.gz
   
   Package_rpm:
-    name: Packege rpm
+    name: Package_rpm
     runs-on: fedora-latest
     needs: build-linux-app
     steps:
@@ -182,10 +182,11 @@ jobs:
 
       - name: Load version
         run: |
-          VERSION=$(cat version.txt)
-          echo "version=$VERSION" >> $GITHUB_ENV
+          VERSION=$(cat version.txt);
+          echo "version=$VERSION" >> $GITHUB_ENV;
 
       - name: Install dependencies
+      # need remove!!
         run: |
           whoami
           pwd
@@ -213,7 +214,7 @@ jobs:
   All_in_one:
     name: All_in_one
     runs-on: ubuntu-latest
-    needs: [build-linux-app, Package_deb, Package_targz]
+    needs: [build-linux-app, Package_deb, Package_targz, Package_rpm]
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
