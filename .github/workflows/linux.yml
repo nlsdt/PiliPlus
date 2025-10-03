@@ -108,7 +108,7 @@ jobs:
           cp      -r     ../build/linux/x64/release/bundle/lib/. opt/PiliPlus/lib/;          
           install -dm755 opt/PiliPlus/data/;
           cp      -r     ../build/linux/x64/release/bundle/data/. opt/PiliPlus/data/;
-          install -Dm755 ../assets/linux/DEBIAN/* DEBIAN;
+          install -Dm755 ../assets/linux/DEBIAN/* DEBIAN/;
           install -Dm755  ../assets/linux/piliplus.desktop usr/share/applications/piliplus.desktop;
           install -Dm644 ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png;
 
