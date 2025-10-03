@@ -53,14 +53,10 @@ jobs:
           channel: stable
           flutter-version-file: pubspec.yaml
 
-      # - name: Get Flutter dependencies
-      #   run: flutter pub get
-      #   shell: bash
-
       - name: Set and Extract version
         run: |
           dart lib/scripts/build.dart
-          VERSION=$(cat pubspec.yaml | grep 'version:' | sed 's/version: //g' | tr -d '[:space:]')
+          VERSION=$(grep 'version:' pubspecc.yml | sed 's/version: //g' | tr -d '[:space:]')
           echo "version=$VERSION" >> $GITHUB_ENV
           echo "${VERSION}" > version.txt
         shell: bash
@@ -72,12 +68,14 @@ jobs:
       - name: Upuload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Build_artifacts
+          name: Build_artifacts_[DO_NOT_DOWNLOAD_THIS]
           path: |
             build/linux/x64/release/bundle/
             assets/linux/
             assets/images/logo/
             version.txt
+          retention-days: 1
+          compression-level: 1
 
   Package_deb:
     name: Packege deb
@@ -87,14 +85,13 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build_artifacts
+          name: Build_artifacts_[DO_NOT_DOWNLOAD_THIS]
           path: .
       
       - name: Load version
         run: |
           VERSION=$(cat version.txt)
           echo "version=$VERSION" >> $GITHUB_ENV
-        shell: bash
       
       - name: Packege deb
         run: |
@@ -105,11 +102,13 @@ jobs:
           mkdir -p usr/share/applications
           mkdir -p usr/share/icons/hicolor/512x512/apps
 
-          printf "复制文件...\n"
-          cp -r ../build/linux/x64/release/bundle/* opt/PiliPlus
-          cp -r ../assets/linux/DEBIAN .
-          cp ../assets/linux/piliplus.desktop usr/share/applications
-          cp ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png
+          printf "安装文件...\n"
+          install -Dm755 ../build/linux/x64/release/bundle/piliplus opt/PiliPlus/piliplus
+          install -Dm644 ../build/linux/x64/release/bundle/lib/* opt/PiliPlus/lib
+          install -Dm644 ../build/linux/x64/release/bundle/data/* opt/PiliPlus/data
+          install -Dm755 ../assets/linux/DEBIAN .
+          install -Dm755  ../assets/linux/piliplus.desktop usr/share/applications/piliplus.desktop
+          install -Dm644 ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png
 
           printf "修改控制文件...\n"
           # 替换版本号
@@ -153,8 +152,13 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build_artifacts
+          name: Build_artifacts_[DO_NOT_DOWNLOAD_THIS]
           path: .
+
+      - name: Load version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "version=$VERSION" >> $GITHUB_ENV
       
       - name: Package .tar.gz
         run: tar -zcvf PiliPlus_linux_${{ env.version }}_amd64.tar.gz -C build/linux/x64/release/bundle .
@@ -165,27 +169,65 @@ jobs:
           name: Linux_targz_packege
           path: PiliPlus_linux_*.tar.gz
   
-  # Package_rpm:
-  #   name: Packege rpm
-  #   runs-on: fedora-latest
-  #   needs: build-linux-app
-  #   steps:
-  #     - name: Download build artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: Build_artifacts 
-  #         path: .
-      
-  #     - name: Copy spec file
-  #       run: cp assets/linux/piliplus.spec .
-      
-  #     - name: Packege rpm
-  #       run: |
-  #         rpmbuild --define "_topdir $PWD/rpmbuild" --define "version ${{ env.version }}" -bb piliplus.spec
-          
-  #     - name: Upload linux rpm package
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: Linux_rpm_package
-  #         path: rpmbuild/RPMS/x86_64/piliplus-*.rpm
+  Package_rpm:
+    name: Packege rpm
+    runs-on: fedora-latest
+    needs: build-linux-app
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Build_artifacts 
+          path: .
 
+      - name: Load version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          whoami
+          pwd
+          sudo dnf update -y
+          sudo dnf install -y rpmdevtools
+      
+      - name: Prepare rpmbuild environment
+        run: |
+          rpmdev-setuptree
+          
+
+      - name: Copy spec file
+        run: cp assets/linux/piliplus.spec .
+      
+      - name: Packege rpm
+        run: |
+          rpmbuild --define "_topdir $PWD/rpmbuild" --define "version ${{ env.version }}" -bb piliplus.spec
+          
+      - name: Upload linux rpm package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux_rpm_package
+          path: rpmbuild/RPMS/x86_64/piliplus-*.rpm
+
+  All_in_one:
+    name: All_in_one
+    runs-on: ubuntu-latest
+    needs: [build-linux-app, Package_deb, Package_targz]
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: |
+            Linux_deb_package
+            Linux_targz_packege
+       
+      - name: Upload all packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: All_in_one_packages
+          path: |
+            *.deb
+            *.tar.gz
+            *.rpm
+            *.flatpak
