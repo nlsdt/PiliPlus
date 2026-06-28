@@ -1,4 +1,4 @@
-import 'dart:async' show Timer;
+import 'dart:async' show Timer, StreamSubscription;
 import 'dart:convert' show jsonDecode, utf8;
 import 'dart:io' show Platform, File;
 import 'dart:typed_data' show Uint8List;
@@ -128,6 +128,27 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
   late final RxnInt _batteryLevel = RxnInt();
   late final RxBool _isCharging = false.obs;
   late final _showBatteryLevel = Pref.showBatteryLevel;
+
+  StreamSubscription<BatteryState>? _batterySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _batterySubscription = _battery.onBatteryStateChanged.listen((BatteryState state) async {
+      _isCharging.value = state == BatteryState.charging;
+      try {
+        _batteryLevel.value = await _battery.batteryLevel;
+      } catch (_) {}
+    });
+  }
+
+  @override
+  void dispose() {
+    stopClock();
+    _batterySubscription?.cancel();
+    super.dispose();
+  }
+  
   void getBatteryLevelIfNeeded() {
     if (!_showCurrTime || !_showBatteryLevel) return;
     EasyThrottle.throttle(
@@ -167,7 +188,7 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
                     const Padding(
                       padding: EdgeInsets.only(left: 2),
                       child: Icon(
-                        Icons.electric_bolt,
+                        Icons.bolt,
                         color: Colors.amber,
                         size: 13,
                       ),
