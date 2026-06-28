@@ -146,7 +146,7 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
         _batteryLevel.value = await _battery.batteryLevel;
       } catch (_) {}
     });
-  };
+  }
       
   void getBatteryLevelIfNeeded() {
     if (!_showCurrTime || !_showBatteryLevel) return;
