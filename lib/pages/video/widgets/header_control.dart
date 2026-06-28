@@ -134,6 +134,11 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     super.initState();
+
+    _battery.batteryState.then((state) {
+      _isCharging.value = state == BatteryState.charging;
+    }).catchError((_) {});
+      
     _batterySubscription = _battery.onBatteryStateChanged.listen((BatteryState state) async {
       _isCharging.value = state == BatteryState.charging;
       try {
@@ -189,7 +194,6 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
                       padding: EdgeInsets.only(left: 2),
                       child: Icon(
                         Icons.bolt,
-                        color: Colors.amber,
                         size: 13,
                       ),
                     ),
