@@ -126,6 +126,7 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
 
   late final _battery = Battery();
   late final RxnInt _batteryLevel = RxnInt();
+  late final RxBool _isCharging = false.obs;
   late final _showBatteryLevel = Pref.showBatteryLevel;
   void getBatteryLevelIfNeeded() {
     if (!_showCurrTime || !_showBatteryLevel) return;
