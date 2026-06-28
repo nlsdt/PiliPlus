@@ -135,6 +135,8 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
       () async {
         try {
           _batteryLevel.value = await _battery.batteryLevel;
+          final state = await _battery.batteryState;
+          _isCharging.value = state == BatteryState.charging;
         } catch (_) {}
       },
     );
@@ -150,15 +152,29 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
               if (batteryLevel == null) {
                 return const SizedBox.shrink();
               }
-              return Text(
-                '$batteryLevel%',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
-              );
-            },
-          ),
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '$batteryLevel%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
+                  if (_isCharging.value)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 2),
+                      child: Icon(
+                        Icons.electric_bolt,
+                        color: Colors.amber,
+                        size: 13,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           const SizedBox(width: 10),
         ],
         Obx(
