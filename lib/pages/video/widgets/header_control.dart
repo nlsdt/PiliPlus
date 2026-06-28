@@ -94,6 +94,7 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
   @override
   void dispose() {
     stopClock();
+    _batterySubscription?.cancel();
     super.dispose();
   }
 
@@ -145,15 +146,8 @@ mixin TimeBatteryMixin<T extends StatefulWidget> on State<T> {
         _batteryLevel.value = await _battery.batteryLevel;
       } catch (_) {}
     });
-  }
-
-  @override
-  void dispose() {
-    stopClock();
-    _batterySubscription?.cancel();
-    super.dispose();
-  }
-  
+  };
+      
   void getBatteryLevelIfNeeded() {
     if (!_showCurrTime || !_showBatteryLevel) return;
     EasyThrottle.throttle(
